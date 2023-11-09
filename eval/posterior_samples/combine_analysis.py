@@ -8,6 +8,18 @@ from matplotlib import pyplot as plt
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+def get_hmc_samples(path, n_chains, param_indices, num_params):
+    '''
+
+    '''
+    samples_corner = 0
+
+    # need to wrap samples in a list ico samples from multiple chains
+    return samples_corner
+    
+    
+
+
 path = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
 n_chains = 1 #4 #4 #10
 
@@ -97,7 +109,7 @@ map_weight_highz= np.take(map_weights, index_highz)
 map_samples=  np.tile(map_weight_highz, (200, 1))
 print(map_samples.shape)
 
-dropout_weights = np.load('./dropout/dropout_samples_l7_weights.npy')
+dropout_weights = np.load('/share/nas2/dmohan/mcmc/hamilt/dropout/dropout_samples_l7_weights.npy')
 dropout_weight_highz= np.take(dropout_weights, index_highz)
 dropout_samples=  np.tile(dropout_weight_highz, (200, 1))
 print(dropout_samples.shape)
