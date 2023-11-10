@@ -73,7 +73,7 @@ def get_dropout_samples(path, indices, num_samples):
     weights_indexed= np.take(weights, indices)
     weight_samples =  np.tile(weights_indexed, (num_samples, 1))
 
-    return weight_samples
+    return weights_indexed, weight_samples
 
 
 path_hmc = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
@@ -99,8 +99,8 @@ vi_samples_laplace = get_vi_samples(path_vi_laplace, num_samples, num_params_vi,
 vi_samples_gaussian = get_vi_samples(path_vi_gaussian, num_samples, num_params_vi, index_highz)
 vi_samples_gmm = get_vi_samples(path_vi_gmm, num_samples, num_params_vi, index_highz)
 lla_samples = get_lla_samples(path_lla, index_highz)
-map_samples = get_dropout_samples(path_map, index_highz, num_samples)
-dropout_samples = get_dropout_samples(path_dropout, index_highz, num_samples)
+map_weights, map_samples = get_dropout_samples(path_map, index_highz, num_samples)
+dropout_weights, dropout_samples = get_dropout_samples(path_dropout, index_highz, num_samples)
 
 
 print(samples_hmc.shape)
@@ -157,25 +157,23 @@ g.map_upper(sns.scatterplot)
 g.map_lower(sns.kdeplot)
 g.map_diag(sns.kdeplot)
 
-
-#add lines for MAP and dropout values
 i = 0
 for ax in g.axes.ravel():
     if(i == 0):
-        ax.axvline(x=map_samples[0], color = "red")
-        ax.axvline(x=dropout_samples[0], color = "violet")
+        ax.axvline(x=map_weights[0], color = "red")
+        ax.axvline(x=dropout_weights[0], color = "violet")
     if(i == 6):
-        ax.axvline(x=map_samples[1], color = "red")
-        ax.axvline(x=dropout_samples[1], color = "violet")
+        ax.axvline(x=map_weights[1], color = "red")
+        ax.axvline(x=dropout_weights[1], color = "violet")
     if(i == 12):
-        ax.axvline(x=map_samples[2], color = "red")
-        ax.axvline(x=dropout_samples[2], color = "violet")
+        ax.axvline(x=map_weights[2], color = "red")
+        ax.axvline(x=dropout_weights[2], color = "violet")
     if(i == 18):
-        ax.axvline(x=map_samples[3], color = "red")
-        ax.axvline(x=dropout_samples[3], color = "violet")
+        ax.axvline(x=map_weights[3], color = "red")
+        ax.axvline(x=dropout_weights[3], color = "violet")
     if(i == 24):
-        ax.axvline(x=map_samples[4], color = "red")
-        ax.axvline(x=dropout_samples[4], color = "violet")
+        ax.axvline(x=map_weights[4], color = "red")
+        ax.axvline(x=dropout_weights[4], color = "violet")
     i+=1
 
 plt.savefig('./snspairplt_l7_highz_kde_all.png')
