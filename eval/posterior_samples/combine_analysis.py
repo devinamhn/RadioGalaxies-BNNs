@@ -97,6 +97,7 @@ vi_sample_laplace_df = pd.DataFrame(vi_samples_laplace, index = ['VI (Laplace pr
 def get_lla_samples(path, indices):
     lla_samples =  torch.load(path, map_location=torch.device('cpu')).detach().numpy()
     lla_samples = np.take(lla_samples, indices, axis=1)
+    return lla_samples
 
 # lla_samples =  torch.load('/share/nas2/dmohan/mcmc/hamilt/results/laplace/lla_samples.pt', map_location=torch.device('cpu')).detach().numpy()
 # lla_samples = np.take(lla_samples, indices = index_highz, axis=1)
