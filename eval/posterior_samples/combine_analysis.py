@@ -8,48 +8,68 @@ from matplotlib import pyplot as plt
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def get_hmc_samples(path, n_chains, param_indices, num_params):
+def get_hmc_samples(path, n_chains, param_indices):
     '''
+    param_indices : list of ints or ndarray generated from np.arange
 
+    indices_per_layer = [156, 2572, 12998, 33830, 222110, 232274, 232444] \\weights and biases combined
+    indices_per_layer = [150 , 156, 2556, 2572, 12972, 12998, 33798, 33830, 221990, 222110, 232190, 232274, 232442, 232444] \\ weights, biases per layer
+    high z-statistic indices = [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]
+    np.arange(232437 , 232442)
     '''
-    samples_corner = 0
+    num_params = len(param_indices)
+
+    #load n thinned chains 
+    for i in range(n_chains):
+        var_name = "params_hmc_{}".format(i)
+        locals()[var_name] = torch.load(path+'/thin_chain'+str(i), map_location=torch.device('cpu'))
+
+        num_samples = len(params_hmc_0)
+        samples_name = "samples_hmc_{}".format(i)
+        locals()[samples_name] = np.zeros((num_samples, num_params))
+    
+    #rewrite to add samples_corner{i}
+    i = 0
+    for j in param_indices:
+        for k in range(num_samples):
+            samples_hmc_0[k][i] = params_hmc_0[k][j]
+        print(j)
+        i=i+1    
 
     # need to wrap samples in a list ico samples from multiple chains
-    return samples_corner
+    return samples_hmc_0
     
     
 
 
 path = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
-n_chains = 1 #4 #4 #10
+n_chains = 1 
+param_indices = [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]
+
+samples_hmc = get_hmc_samples(path, n_chains, param_indices)
+print(samples_hmc.shape)
+
+# #load n chains 
+# for i in range(n_chains):
+#     var_name = "params_hmc_{}".format(i)
+#     locals()[var_name] = torch.load(path+'/thin_chain'+str(i), map_location=torch.device('cpu'))
+
+# print( "len chain 1", len(params_hmc_0))
+
+# #num_params_per_layer = [156, 2416, 10426, 20832, 188280, 10164, 170]
+# num_params = 5 #168 #5
+# num_samples = len(params_hmc_0) #number of samples after thinning
+
+# samples_corner0 =np.zeros((num_samples, num_params))
+
+# i = 0
+# for j in [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]: 
+#     for k in range(num_samples):
+#         samples_corner0[k][i] = params_hmc_0[k][j]
+#     print(j)
+#     i=i+1
 
 
-#load n chains 
-for i in range(n_chains):
-    var_name = "params_hmc_{}".format(i)
-    locals()[var_name] = torch.load(path+'/thin_chain'+str(i), map_location=torch.device('cpu'))
-
-print( "len chain 1", len(params_hmc_0))
-
-#num_params_per_layer = [156, 2416, 10426, 20832, 188280, 10164, 170]
-num_params = 5 #168 #5
-num_samples = len(params_hmc_0) #number of samples after thinning
-
-samples_corner0 =np.zeros((num_samples, num_params))
-
-i = 0
-# indices_per_layer = [156, 2572, 12998, 33830, 222110, 232274, 232444] \\weights and biases combined
-# indices_per_layer = [150 , 156, 2556, 2572, 12972, 12998, 33798, 33830, 221990, 222110, 232190, 232274, 232442, 232444] \\ weights, biases per layer
- 
-# high z-statistic indices [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]
-for j in [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]: #np.arange(232437 , 232442) - last 5 weights
-    for k in range(num_samples):
-        samples_corner0[k][i] = params_hmc_0[k][j]
-    print(j)
-    i=i+1
-
-
-print(samples_corner0.shape)
 
 # plot heat maps to visualise cov matrix of weights
 
