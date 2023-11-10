@@ -33,82 +33,62 @@ def get_hmc_samples(path, n_chains, param_indices, chain_index):
         print(j)
         i=i+1    
 
-    return samples_hmc
+    return samples_hmc, num_samples
     
+def plot_heatmap(samples, filename):
+    '''
+    plot heat map to visualise covariance matrix of weights
+    '''
+    samples_cov = np.cov(samples)
+
+    plt.figure(dpi = 200)
+    sns.heatmap(samples_cov)
+    plt.title('Covariance Map')
+    plt.savefig(filename)
 
 
-path = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
+path_hmc = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
 n_chains = 1 
 chain_index = 0
 param_indices = [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]
+num_params = len(param_indices)
 
-samples_hmc = get_hmc_samples(path, n_chains, param_indices, chain_index)
+samples_hmc, num_samples = get_hmc_samples(path_hmc, n_chains, param_indices, chain_index)
 print(samples_hmc.shape)
 
-exit()
-# #load n chains 
-# for i in range(n_chains):
-#     var_name = "params_hmc_{}".format(i)
-#     locals()[var_name] = torch.load(path+'/thin_chain'+str(i), map_location=torch.device('cpu'))
 
-# print( "len chain 1", len(params_hmc_0))
-
-# #num_params_per_layer = [156, 2416, 10426, 20832, 188280, 10164, 170]
-# num_params = 5 #168 #5
-# num_samples = len(params_hmc_0) #number of samples after thinning
-
-# samples_corner0 =np.zeros((num_samples, num_params))
-
-# i = 0
-# for j in [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]: 
-#     for k in range(num_samples):
-#         samples_corner0[k][i] = params_hmc_0[k][j]
-#     print(j)
-#     i=i+1
-
-
-
-# plot heat maps to visualise cov matrix of weights
-
-# samples_corner0 = samples_corner0.reshape((num_params, num_samples))
-# print(np.cov(samples_corner0).shape)
-# samples_0_cov = np.cov(samples_corner0)
-
-
-# plt.figure(dpi = 200)
-# sns.heatmap(samples_0_cov)
-# plt.title('Layer7')
-# plt.savefig('./heatmap_cov_l7_weights.png')
-
+# plot_heatmap(samples_hmc.reshape((num_params, num_samples)), filename = './heatmap_cov_l7_weights.png')
 
 index_highz = [6, 15, 35, 39, 41]
-
-path_vi = '/share/nas2/dmohan/mcmc/hamilt/results/vi/'
-vi_name = 'vi_samples_lap_l7_weights.npy' #'vi_samples_last5.npy'
 num_params_vi = 168
+path_vi_laplace = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_lap_l7_weights.npy' 
+path_vi_gaussian = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_gaussian_l7_weights.npy' 
+path_vi_gmm = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_gmm_l7_weights.npy' 
 
-vi_samples_laplace = np.load(path_vi+vi_name)
-vi_samples_laplace = vi_samples_laplace.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
-vi_samples_laplace = np.take(vi_samples_laplace, indices = index_highz, axis=1)# #torch.index_select(vi_samples_laplace, dim = 1, index = index_highz)
+
+def get_vi_samples(path_vi, num_samples, num_params_vi, indices):
+
+    vi_samples_laplace = np.load(path_vi)
+    vi_samples_laplace = vi_samples_laplace.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
+    vi_samples_laplace = np.take(vi_samples_laplace, indices, axis=1)# #torch.index_select(vi_samples_laplace, dim = 1, index = index_highz)
+
+vi_samples_laplace = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
+vi_samples_gaussian = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
+vi_samples_gmm = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
+
 print(vi_samples_laplace.shape)
 
-
-# vi_samples_gaussian = np.load(path_vi+'vi_samples_gaussian_l7_weights.npy') #'vi_samples_gaussian.npy'
-# vi_samples_gaussian = vi_samples_gaussian.reshape((num_samples, num_params_vi))[:, 163:] #[:, 163:]
-
-# vi_samples_gmm = np.load(path_vi+'vi_samples_gmm_l7_weights.npy') #'vi_samples_gmm.npy'
-# vi_samples_gmm = vi_samples_gmm.reshape((num_samples, num_params_vi))[:, 163:]#[:, 163:]
 
 vi_sample_laplace_df = pd.DataFrame(vi_samples_laplace, index = ['VI (Laplace prior)']*num_samples) 
 # vi_sample_laplace_df = pd.DataFrame(vi_samples_laplace[:num_samples : , ], index = ['VI (Laplace prior)']*num_samples) 
 # vi_sample_gaussian_df = pd.DataFrame(vi_samples_gaussian, index = ['VI (Gaussian prior)']*num_samples) 
 # vi_sample_gmm_df = pd.DataFrame(vi_samples_gmm, index = ['VI (GMM prior)']*num_samples) 
 
-
+exit()
 
 # column = num_params, row = num_samples
 burnin = 0
-samples0_df = pd.DataFrame(samples_corner0[burnin:], index = ['HMC']*(num_samples-burnin))
+hmc_samples_df = pd.DataFrame(samples_hmc[burnin:], index = ['HMC']*(num_samples-burnin))
 # samples0_df_burn = pd.DataFrame(samples_corner0[:burnin], index = ['HMC burnin']*burnin)  #for plotting burnin samples separately
 
 
@@ -135,7 +115,7 @@ print(dropout_samples.shape)
 map_samples_df = pd.DataFrame(map_samples, index=['MAP value']*num_samples)
 dropout_samples_df = pd.DataFrame(dropout_samples, index=['Dropout']*num_samples)
 
-frames = [samples0_df, vi_sample_laplace_df, lla_samples_df, map_samples_df, dropout_samples_df] #, vi_sample_gaussian_df, vi_sample_gmm_df] #[samples0_df, samples0_df, vi_sample_laplace_df] #, vi_sample_gaussian_df, vi_sample_gmm_df]
+frames = [hmc_samples_df, vi_sample_laplace_df, lla_samples_df, map_samples_df, dropout_samples_df] #, vi_sample_gaussian_df, vi_sample_gmm_df] #[samples0_df, samples0_df, vi_sample_laplace_df] #, vi_sample_gaussian_df, vi_sample_gmm_df]
 newdf = pd.concat(frames).rename(columns=
                                  
                                  {0: r"$w_{1 \_ 6}^7$", 
