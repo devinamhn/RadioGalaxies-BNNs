@@ -8,8 +8,10 @@ from matplotlib import pyplot as plt
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def get_hmc_samples(path, n_chains, param_indices):
+def get_hmc_samples(path, n_chains, param_indices, chain_index):
     '''
+    Get samples from a single HMC chain
+
     param_indices : list of ints or ndarray generated from np.arange
 
     indices_per_layer = [156, 2572, 12998, 33830, 222110, 232274, 232444] \\weights and biases combined
@@ -19,36 +21,31 @@ def get_hmc_samples(path, n_chains, param_indices):
     '''
     num_params = len(param_indices)
 
-    #load n thinned chains 
-    for i in range(n_chains):
-        var_name = "params_hmc_{}".format(i)
-        locals()[var_name] = torch.load(path+'/thin_chain'+str(i), map_location=torch.device('cpu'))
+    params_hmc = torch.load(path+'/thin_chain'+str(chain_index), map_location=torch.device('cpu'))
 
-        num_samples = len(params_hmc_0)
-        samples_name = "samples_hmc_{}".format(i)
-        locals()[samples_name] = np.zeros((num_samples, num_params))
+    num_samples = len(params_hmc)
+    samples_hmc = np.zeros((num_samples, num_params))
     
-    #rewrite to add samples_corner{i}
     i = 0
     for j in param_indices:
         for k in range(num_samples):
-            samples_hmc_0[k][i] = params_hmc_0[k][j]
+            samples_hmc[k][i] = params_hmc[k][j]
         print(j)
         i=i+1    
 
-    # need to wrap samples in a list ico samples from multiple chains
-    return samples_hmc_0
-    
+    return samples_hmc
     
 
 
 path = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000'    #leapfrog/' #inits/thin1000' # #priors/thin1000'
 n_chains = 1 
+chain_index = 0
 param_indices = [232274 + 6, 232274 + 15, 232274 + 35, 232274 + 39, 232274 + 41 ]
 
-samples_hmc = get_hmc_samples(path, n_chains, param_indices)
+samples_hmc = get_hmc_samples(path, n_chains, param_indices, chain_index)
 print(samples_hmc.shape)
 
+exit()
 # #load n chains 
 # for i in range(n_chains):
 #     var_name = "params_hmc_{}".format(i)
