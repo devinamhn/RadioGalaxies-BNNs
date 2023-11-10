@@ -68,13 +68,15 @@ path_vi_gmm = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_gmm_l7_
 
 def get_vi_samples(path_vi, num_samples, num_params_vi, indices):
 
-    vi_samples_laplace = np.load(path_vi)
-    vi_samples_laplace = vi_samples_laplace.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
-    vi_samples_laplace = np.take(vi_samples_laplace, indices, axis=1)# #torch.index_select(vi_samples_laplace, dim = 1, index = index_highz)
+    vi_samples = np.load(path_vi)
+    vi_samples = vi_samples.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
+    vi_samples = np.take(vi_samples, indices, axis=1)# #torch.index_select(vi_samples, dim = 1, index = index_highz)
+
+    return vi_samples
 
 vi_samples_laplace = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
-vi_samples_gaussian = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
-vi_samples_gmm = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
+vi_samples_gaussian = get_vi_samples(path_vi_gaussian, num_samples, num_params_vi, index_highz)
+vi_samples_gmm = get_vi_samples(path_vi_gmm, num_samples, num_params_vi, index_highz)
 
 print(vi_samples_laplace.shape)
 
