@@ -84,40 +84,6 @@ print(lla_samples.shape)
 
 
 
-# from sklearn.neighbors import KernelDensity
-# i =0
-# kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(samples_corner0[:, i])
-# log_density = kde.score_samples(samples_corner0[:, i])
-# print(log_density)
-
-# i = 0
-# print (kl_div(samples_corner0[:, i], vi_samples_laplace[:, i]))
-# print (kl_div(samples_corner0[:, i], lla_samples[:, i]) )
-
-
-
-
-# from torch.distributions.multivariate_normal import MultivariateNormal
-
-# m = 20 # sample size
-# x_mean = torch.zeros(2)+1
-# y_mean = torch.zeros(2)
-# x_cov = 2*torch.eye(2) # IMPORTANT: Covariance matrices must be positive definite
-# y_cov = 3*torch.eye(2) - 1
-
-# px = MultivariateNormal(x_mean, x_cov)
-# qy = MultivariateNormal(y_mean, y_cov)
-# x = px.sample([m]).to(device)
-# y = qy.sample([m]).to(device)
-
-# print(x)
-
-# i= 0
-
-# s1 = torch.from_numpy(samples_corner0[:, i])
-# s2 = torch.from_numpy(vi_samples_laplace[:, i])
-# s3 = torch.from_numpy(lla_samples[:, i])
-
 s1 = torch.from_numpy(samples_hmc)
 s2 = torch.from_numpy(vi_samples_laplace)
 s3 = torch.from_numpy(lla_samples)
