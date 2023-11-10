@@ -116,7 +116,7 @@ def get_dropout_samples(path, indices, num_samples):
 
     '''
     weights = np.load(path)
-    weights_= np.take(map_weights, indices)
+    weights_= np.take(weights, indices)
     weight_samples =  np.tile(weights, (num_samples, 1))
 
     return weight_samples
