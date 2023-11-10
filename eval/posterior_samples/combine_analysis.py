@@ -34,6 +34,15 @@ def get_hmc_samples(path, n_chains, param_indices, chain_index):
         i=i+1    
 
     return samples_hmc, num_samples
+
+
+def get_vi_samples(path_vi, num_samples, num_params_vi, indices):
+
+    vi_samples = np.load(path_vi)
+    vi_samples = vi_samples.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
+    vi_samples = np.take(vi_samples, indices, axis=1)# #torch.index_select(vi_samples, dim = 1, index = index_highz)
+
+    return vi_samples
     
 def plot_heatmap(samples, filename):
     '''
@@ -66,13 +75,6 @@ path_vi_gaussian = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_ga
 path_vi_gmm = '/share/nas2/dmohan/mcmc/hamilt/results/vi/' + 'vi_samples_gmm_l7_weights.npy' 
 
 
-def get_vi_samples(path_vi, num_samples, num_params_vi, indices):
-
-    vi_samples = np.load(path_vi)
-    vi_samples = vi_samples.reshape((num_samples, num_params_vi)) #[:, 0:5] #[:, 163:]
-    vi_samples = np.take(vi_samples, indices, axis=1)# #torch.index_select(vi_samples, dim = 1, index = index_highz)
-
-    return vi_samples
 
 vi_samples_laplace = get_vi_samples(path_vi_laplace, num_samples, num_params_vi, index_highz)
 vi_samples_gaussian = get_vi_samples(path_vi_gaussian, num_samples, num_params_vi, index_highz)
@@ -81,38 +83,62 @@ vi_samples_gmm = get_vi_samples(path_vi_gmm, num_samples, num_params_vi, index_h
 print(vi_samples_laplace.shape)
 
 
+#create dataframes: column = num_params, row = num_samples
+
+burnin = 0
+hmc_samples_df = pd.DataFrame(samples_hmc[burnin:], index = ['HMC']*(num_samples-burnin))
+# samples0_df_burn = pd.DataFrame(samples_corner0[:burnin], index = ['HMC burnin']*burnin)  #for plotting burnin samples separately
+
 vi_sample_laplace_df = pd.DataFrame(vi_samples_laplace, index = ['VI (Laplace prior)']*num_samples) 
 # vi_sample_laplace_df = pd.DataFrame(vi_samples_laplace[:num_samples : , ], index = ['VI (Laplace prior)']*num_samples) 
 # vi_sample_gaussian_df = pd.DataFrame(vi_samples_gaussian, index = ['VI (Gaussian prior)']*num_samples) 
 # vi_sample_gmm_df = pd.DataFrame(vi_samples_gmm, index = ['VI (GMM prior)']*num_samples) 
 
-exit()
+def get_lla_samples(path, indices):
+    lla_samples =  torch.load(path, map_location=torch.device('cpu')).detach().numpy()
+    lla_samples = np.take(lla_samples, indices, axis=1)
 
-# column = num_params, row = num_samples
-burnin = 0
-hmc_samples_df = pd.DataFrame(samples_hmc[burnin:], index = ['HMC']*(num_samples-burnin))
-# samples0_df_burn = pd.DataFrame(samples_corner0[:burnin], index = ['HMC burnin']*burnin)  #for plotting burnin samples separately
+# lla_samples =  torch.load('/share/nas2/dmohan/mcmc/hamilt/results/laplace/lla_samples.pt', map_location=torch.device('cpu')).detach().numpy()
+# lla_samples = np.take(lla_samples, indices = index_highz, axis=1)
 
-
-lla_samples =  torch.load('/share/nas2/dmohan/mcmc/hamilt/results/laplace/lla_samples.pt', map_location=torch.device('cpu')).detach().numpy()
-lla_samples = np.take(lla_samples, indices = index_highz, axis=1)
+path_lla = '/share/nas2/dmohan/mcmc/hamilt/results/laplace/lla_samples.pt'
+lla_samples = get_lla_samples(path_lla, index_highz)
 print(lla_samples.shape)
 
 # lla_samples_df = pd.DataFrame(lla_samples[:, 0:5], index = ['LLA samples']*num_samples) 
 lla_samples_df = pd.DataFrame(lla_samples, index = ['LLA samples']*num_samples) 
 
+def get_dropout_samples(path, indices, num_samples):
 
+    '''
+    Function to get samples from dropout and MAP training 
 
-map_weights = np.load('/share/nas2/dmohan/mcmc/hamilt/dropout/map_samples_l7_weights.npy')
-map_weight_highz= np.take(map_weights, index_highz)
-map_samples=  np.tile(map_weight_highz, (200, 1))
+    '''
+    weights = np.load(path)
+    weights_= np.take(map_weights, indices)
+    weight_samples =  np.tile(weights, (num_samples, 1))
+
+    return weight_samples
+
+path_map = '/share/nas2/dmohan/mcmc/hamilt/dropout/map_samples_l7_weights.npy'
+path_dropout = '/share/nas2/dmohan/mcmc/hamilt/dropout/dropout_samples_l7_weights.npy'
+
+map_samples = get_dropout_samples(path_map, index_highz, num_samples)
 print(map_samples.shape)
 
-dropout_weights = np.load('/share/nas2/dmohan/mcmc/hamilt/dropout/dropout_samples_l7_weights.npy')
-dropout_weight_highz= np.take(dropout_weights, index_highz)
-dropout_samples=  np.tile(dropout_weight_highz, (200, 1))
+dropout_samples = get_dropout_samples(path_dropout, index_highz, num_samples)
 print(dropout_samples.shape)
 
+# map_weights = np.load('/share/nas2/dmohan/mcmc/hamilt/dropout/map_samples_l7_weights.npy')
+# map_weight_highz= np.take(map_weights, index_highz)
+# map_samples=  np.tile(map_weight_highz, (200, 1))
+
+
+# dropout_weights = np.load('/share/nas2/dmohan/mcmc/hamilt/dropout/dropout_samples_l7_weights.npy')
+# dropout_weight_highz= np.take(dropout_weights, index_highz)
+# dropout_samples=  np.tile(dropout_weight_highz, (200, 1))
+
+exit()
 
 map_samples_df = pd.DataFrame(map_samples, index=['MAP value']*num_samples)
 dropout_samples_df = pd.DataFrame(dropout_samples, index=['Dropout']*num_samples)
