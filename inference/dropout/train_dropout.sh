@@ -14,5 +14,5 @@ nvidia-smi
 echo ">>>start"
 source /share/nas2/dmohan/RadioGalaxies-BNNs/venv/bin/activate
 echo ">>>training"
-python /share/nas2/dmohan/RadioGalaxies-BNNs/inference/dropout_train.py
+python /share/nas2/dmohan/RadioGalaxies-BNNs/inference/dropout/dropout_train.py
 
