@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 import torch.distributions as dists
-from models import LeNetDrop
+from inference.models import LeNetDrop
 import utils
-from datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
+from inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 from uncertainty import entropy_MI, overlapping, GMM_logits, calibration
 
 from laplace import Laplace

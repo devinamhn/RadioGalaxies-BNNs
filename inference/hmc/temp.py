@@ -11,13 +11,13 @@ from torchvision import datasets
 from torchvision.transforms import InterpolationMode
 from pytorch_lightning.demos.mnist_datamodule import MNIST
 from torch.utils.data import DataLoader, random_split
-from datamodules import MNISTDataModule, MiraBestDataModule
+from inference.datamodules import MNISTDataModule, MiraBestDataModule
 from torch.utils.data.sampler import SubsetRandomSampler
 import pytorch_lightning as pl
 import utils
 from PIL import Image
 
-from models import MLP, LeNet
+from inference.models import MLP, LeNet
 import sys
 
 config_dict, config = utils.parse_config('config_mb.txt')
