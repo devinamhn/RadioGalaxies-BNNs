@@ -1,5 +1,5 @@
 import torch
-from models import LeNetDrop
+from inference.models import LeNetDrop
 import utils
 from datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 import torch.optim as optim
@@ -8,80 +8,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import csv
 from uncertainty import entropy_MI, overlapping, GMM_logits
-
-
-def enable_dropout(m):
-  for each_module in m.modules():
-    if each_module.__class__.__name__.startswith('Dropout'):
-      each_module.train()
-
-
-def train(train_loader):
-
-    running_loss = 0.0
-    for i, (x_train, y_train) in enumerate(train_loader):
-        x_train, y_train = x_train.to(device), y_train.to(device)
-
-        # zero the parameter gradients
-        optimizer.zero_grad()
-
-        # forward + backward + optimize
-        outputs = model(x_train)
-        loss = criterion(outputs, y_train)
-        loss.backward()
-        optimizer.step()
-
-        # print statistics
-        running_loss += loss.item()
-
-    # print('batch size, i', i+1)
-    return running_loss/(i+1)
-
-def validate(validation_loader):
-    running_loss = 0.0
-    running_error = 0.0
-    enable_dropout(model)
-    for i, (x_val, y_val) in enumerate(validation_loader):
-        x_val, y_val = x_val.to(device), y_val.to(device)
-
-        # forward + backward + optimize
-        outputs = model(x_val)
-        loss = criterion(outputs, y_val)
-        # loss.backward()
-        # optimizer.step()
-
-        
-        pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
-        
-        error = (pred!= y_val).to(torch.float32).mean()
-        # error = torch.mean((pred != y_val))
-        # print statistics
-        running_loss += loss.item()
-        running_error += error
-
-    # print('batch size, i', i+1)
-    return running_loss/(i+1), running_error/(i+1)
-
-def eval(test_loader):
-
-    model.train(False)
-    running_error = 0.0
-    enable_dropout(model)
-    for i, (x_test, y_test) in enumerate(test_loader):
-        x_test, y_test = x_test.to(device), y_test.to(device)
-        # forward + backward + optimize
-        outputs = model(x_test)
-        # loss = criterion(outputs, y_val)
-        # loss.backward()
-        # optimizer.step()
-        pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
-        error = (pred!= y_test).to(torch.float32).mean()
-        # print statistics
-        # running_loss += loss.item()
-        running_error += error
-
-    # print('batch size, i', i+1)
-    return running_error/(i+1)
+import utils
 
 def energy_function(logits, T = 1):
     
