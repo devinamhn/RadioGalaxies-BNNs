@@ -525,14 +525,14 @@ def get_logits(model, test_data_uncert, device, path):
         ])
         # 64 pixel images
         train_dataset = GalaxyMNISTHighrez(
-            root='./dataGalaxyMNISTHighres',
+            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
             download=True,
             train=True,  # by default, or set False for test set
             transform = transform
         )
 
         test_dataset = GalaxyMNISTHighrez(
-            root='./dataGalaxyMNISTHighres',
+            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
             download=True,
             train=False,  # by default, or set False for test set
             transform = transform
@@ -638,14 +638,14 @@ def get_logits_mlp(model, test_data_uncert, device, path):
         ])
         # 64 pixel images
         train_dataset = GalaxyMNISTHighrez(
-            root='./dataGalaxyMNISTHighres',
+            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
             download=True,
             train=True,  # by default, or set False for test set
             transform = transform
         )
 
         test_dataset = GalaxyMNISTHighrez(
-            root='./dataGalaxyMNISTHighres',
+            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
             download=True,
             train=False,  # by default, or set False for test set
             transform = transform
