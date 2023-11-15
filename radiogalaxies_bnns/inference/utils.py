@@ -10,7 +10,7 @@ import torchvision
 
 import radiogalaxies_bnns.datasets.mirabest
 from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, calibration
-from galaxy_mnist import GalaxyMNIST, GalaxyMNISTHighrez
+from radiogalaxies_bnns.datasets.galaxy_mnist import GalaxyMNIST, GalaxyMNISTHighrez
 
 
 
