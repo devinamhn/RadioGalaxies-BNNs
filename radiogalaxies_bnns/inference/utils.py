@@ -4,12 +4,12 @@ import ast
 import torch
 import numpy as np 
 import torchvision.transforms as transforms
-import mirabest
-from uncertainty import entropy_MI
-from uncertainty import calibration
 from torch.utils.data import SubsetRandomSampler
 import torch.nn.functional as F
 import torchvision
+
+import radiogalaxies_bnns.datasets.mirabest
+from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, calibration
 from galaxy_mnist import GalaxyMNIST, GalaxyMNISTHighrez
 
 
