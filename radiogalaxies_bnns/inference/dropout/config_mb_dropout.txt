@@ -1,6 +1,6 @@
 [data]
 dataset: 'MBFRConf'		        # dataset class [MNIST, MBFRConf(ident), MBFRConf+Uncert]
-datadir: './dataMiraBest'       # /dataMiraBest or /dataMNIST name of directory to download data into - no . in './' if using pathlib
+datadir: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataMiraBest'       # /dataMiraBest or /dataMNIST name of directory to download data into - no . in './' if using pathlib
 datamean: 0.0031                # mean for normalisation MNIST[0.1307, 0.3081], MiraBest[0.0031, 0.0350]
 datastd: 0.0350                 # stdev for normalisation  
 augment: 'False'		        #True/False. No augmentation at test time

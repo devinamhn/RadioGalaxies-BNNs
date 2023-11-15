@@ -11,7 +11,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import pytorch_lightning as pl
 #from utils import *
 from PIL import Image
-import mirabest
+import radiogalaxies_bnns.datasets.mirabest as mirabest
 
 #config_dict, config = parse_config('config1.txt')
 
