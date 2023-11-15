@@ -4,8 +4,8 @@ import utils
 import torch.optim as optim
 import torch.nn.functional as F
 
-from inference.models import LeNetDrop
-from inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
+from radiogalaxies_bnns.inference.models import LeNetDrop
+from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 
 import matplotlib.pyplot as plt
 

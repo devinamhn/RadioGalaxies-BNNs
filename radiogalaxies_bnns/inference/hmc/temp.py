@@ -11,13 +11,13 @@ from torchvision import datasets
 from torchvision.transforms import InterpolationMode
 from pytorch_lightning.demos.mnist_datamodule import MNIST
 from torch.utils.data import DataLoader, random_split
-from inference.datamodules import MNISTDataModule, MiraBestDataModule
+from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule
 from torch.utils.data.sampler import SubsetRandomSampler
 import pytorch_lightning as pl
 import utils
 from PIL import Image
 
-from inference.models import MLP, LeNet
+from radiogalaxies_bnns.inference.models import MLP, LeNet
 import sys
 
 config_dict, config = utils.parse_config('config_mb.txt')
@@ -33,7 +33,6 @@ datamodule = MiraBestDataModule(config_dict, hmc=True)
 train_loader = datamodule.train_dataloader()
 validation_loader = datamodule.val_dataloader()
 test_loader = datamodule.test_dataloader()
-
 
 
 step_size = 0.0001 
