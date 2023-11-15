@@ -2,7 +2,6 @@ import torch
 import torch.optim as optim
 import torch.nn.functional as F
 
-
 def enable_dropout(m):
   for each_module in m.modules():
     if each_module.__class__.__name__.startswith('Dropout'):

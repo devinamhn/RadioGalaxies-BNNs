@@ -1,13 +1,16 @@
-import torch
 import numpy as np
-import utils
+import torch
 import torch.optim as optim
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+
+
+import radiogalaxies_bnns.inference.utils as utils
+import radiogalaxies_bnns.inference.dropout.dropout_utils as dropout_utils
 
 from radiogalaxies_bnns.inference.models import LeNetDrop
 from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 
-import matplotlib.pyplot as plt
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 config_dict, config = utils.parse_config('config_mb_dropout.txt')
@@ -38,10 +41,10 @@ val_error = np.zeros(epochs)
 for epoch in range(epochs):
 
     model.train(True)
-    avg_loss_train = utils.train(model, optimizer, criterion, train_loader, device)
+    avg_loss_train = dropout_utils.train(model, optimizer, criterion, train_loader, device)
 
     model.train(False)
-    avg_loss_val, avg_error_val = utils.validate(model, criterion, validation_loader, device)
+    avg_loss_val, avg_error_val = dropout_utils.validate(model, criterion, validation_loader, device)
 
     print('Epoch {}: LOSS train {} valid {}'.format(epoch, avg_loss_train, avg_loss_val))
 
@@ -84,7 +87,7 @@ print('Test error: {} %'.format(test_error*100))
 
 test_err = torch.zeros(200)
 for i in range(200):
-    test_err[i] = utils.eval(model, test_loader, device)
+    test_err[i] = dropout_utils.eval(model, test_loader, device)
 
 err_mean = torch.mean(test_err)
 err_std = torch.std(test_err)

@@ -1,14 +1,16 @@
 import torch
-from inference.models import LeNetDrop
-import utils
-from datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 import torch.optim as optim
 import numpy as np
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import csv
-from uncertainty import entropy_MI, overlapping, GMM_logits
-import utils
+
+from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, overlapping, GMM_logits
+
+from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
+from radiogalaxies_bnns.inference.models import LeNetDrop
+import radiogalaxies_bnns.inference.utils as utils
+import radiogalaxies_bnns.inference.dropout.dropout_utils as dropout_utils
 
 def energy_function(logits, T = 1):
     
@@ -142,7 +144,7 @@ print('Test error std: {} % '.format(err_std))
 test_dataloader, test_data1, data_type, test_data= testloader_mb_uncert(config_dict['output']['test_data'], config_dict['data']['datadir'])
 path_out = './dropout/exp3/'
 
-utils.calibration_test(path_out, model, test_data_uncert = 'MBFRConfident', device=device, path=config_dict['data']['datadir'], test = True)
+dropout_utils.calibration_test(path_out, model, test_data_uncert = 'MBFRConfident', device=device, path=config_dict['data']['datadir'], test = True)
 ###########################
 exit()
 
