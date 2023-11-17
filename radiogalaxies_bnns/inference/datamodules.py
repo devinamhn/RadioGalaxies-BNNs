@@ -12,7 +12,7 @@ import pytorch_lightning as pl
 #from utils import *
 from PIL import Image
 
-import radiogalaxies_bnns.datasets.mirabest
+from radiogalaxies_bnns.datasets import mirabest
 
 
 class MNISTDataModule(pl.LightningDataModule):
