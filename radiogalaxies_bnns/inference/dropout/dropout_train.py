@@ -13,7 +13,7 @@ from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDa
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config_dict, config = utils.parse_config('config_mb_dropout.txt')
+config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/dropout/config_mb_dropout.txt')
 seed = 123 #config['training']['seed']
 torch.manual_seed(seed)
 path_out = config_dict['output']['path_out']
