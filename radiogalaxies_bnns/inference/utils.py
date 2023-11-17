@@ -8,9 +8,9 @@ from torch.utils.data import SubsetRandomSampler
 import torch.nn.functional as F
 import torchvision
 
-import radiogalaxies_bnns.datasets.mirabest
+from radiogalaxies_bnns.datasets import mirabest
 from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, calibration
-from radiogalaxies_bnns.datasets.galaxy_mnist import GalaxyMNIST, GalaxyMNISTHighrez
+from galaxy_mnist import GalaxyMNIST, GalaxyMNISTHighrez
 
 
 
