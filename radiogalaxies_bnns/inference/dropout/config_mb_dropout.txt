@@ -15,4 +15,4 @@ epochs: 150
 [output]
 filename_uncert: './results/inits/thin1000/uncert/mirabest_uncert.csv'          #'./dropout/exp2/uncert/mbhybrid_uncert.csv' #'./mbhybrid_uncert.csv' #'./mbuncert_uncert.csv'   #'./mirabest_uncert.csv'
 test_data: 'MBFRConfident'      #'MBFRConfident' 'MBFRUncertain', 'MBHybrid', 'GalaxyMNIST', 'MighteeZoo' 
-path_out:'/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/'
+path_out: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/'
