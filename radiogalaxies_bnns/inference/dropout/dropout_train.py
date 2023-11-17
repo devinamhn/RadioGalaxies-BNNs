@@ -81,7 +81,7 @@ plt.xlabel('Epochs')
 plt.ylabel('Error')
 plt.savefig(path_out + 'val_error.png')
 
-test_error = eval(test_loader)
+test_error = dropout_utils.eval(model, test_loader, device)
 
 print('Test error: {} %'.format(test_error*100))
 
