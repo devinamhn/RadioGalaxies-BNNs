@@ -19,20 +19,21 @@ def train(model, optimizer, criterion, train_loader, device):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-    return model, running_loss/(i+1)
+    return running_loss/(i+1)
 
 def validate(model, criterion, validation_loader, device):
     running_loss = 0.0
     running_error = 0.0
     enable_dropout(model)
-    for i, (x_val, y_val) in enumerate(validation_loader):
-        x_val, y_val = x_val.to(device), y_val.to(device)
-        outputs = model(x_val)
-        loss = criterion(outputs, y_val)
-        pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
-        error = (pred!= y_val).to(torch.float32).mean()
-        running_loss += loss.item()
-        running_error += error
+    with torch.no_grad():
+        for i, (x_val, y_val) in enumerate(validation_loader):
+            x_val, y_val = x_val.to(device), y_val.to(device)
+            outputs = model(x_val)
+            loss = criterion(outputs, y_val)
+            pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
+            error = (pred!= y_val).to(torch.float32).mean()
+            running_loss += loss.item()
+            running_error += error
     return running_loss/(i+1), running_error/(i+1)
 
 def eval(model, test_loader, device):
@@ -40,11 +41,12 @@ def eval(model, test_loader, device):
     model.train(False)
     running_error = 0.0
     enable_dropout(model)
-    for i, (x_test, y_test) in enumerate(test_loader):
-        x_test, y_test = x_test.to(device), y_test.to(device)
-        outputs = model(x_test)
-        pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
-        error = (pred!= y_test).to(torch.float32).mean()
-        running_error += error
+    with torch.no_grad():
+        for i, (x_test, y_test) in enumerate(test_loader):
+            x_test, y_test = x_test.to(device), y_test.to(device)
+            outputs = model(x_test)
+            pred = F.softmax(outputs, dim = -1).argmax(dim=-1)
+            error = (pred!= y_test).to(torch.float32).mean()
+            running_error += error
 
     return running_error/(i+1)
