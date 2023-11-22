@@ -41,7 +41,7 @@ val_error = np.zeros(epochs)
 for epoch in range(epochs):
 
     model.train(True)
-    avg_loss_train = dropout_utils.train(model, optimizer, criterion, train_loader, device)
+    model, avg_loss_train = dropout_utils.train(model, optimizer, criterion, train_loader, device)
 
     model.train(False)
     avg_loss_val, avg_error_val = dropout_utils.validate(model, criterion, validation_loader, device)

@@ -19,7 +19,7 @@ def train(model, optimizer, criterion, train_loader, device):
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
-    return running_loss/(i+1)
+    return model, running_loss/(i+1)
 
 def validate(model, criterion, validation_loader, device):
     running_loss = 0.0
