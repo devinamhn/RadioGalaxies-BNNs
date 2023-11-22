@@ -25,6 +25,7 @@ validation_loader = datamodule.val_dataloader()
 test_loader = datamodule.test_dataloader()
 
 model = LeNetDrop(in_channels = 1, output_size =  2, dropout_rate = 0.5 ).to(device) #MLP(150, 200, 10)
+model_path = path_out+'model'
 
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay = 1e-4)
@@ -41,7 +42,7 @@ val_error = np.zeros(epochs)
 for epoch in range(epochs):
 
     model.train(True)
-    model, avg_loss_train = dropout_utils.train(model, optimizer, criterion, train_loader, device)
+    avg_loss_train = dropout_utils.train(model, optimizer, criterion, train_loader, device)
 
     model.train(False)
     avg_loss_val, avg_error_val = dropout_utils.validate(model, criterion, validation_loader, device)
@@ -51,7 +52,6 @@ for epoch in range(epochs):
     # Track best performance, and save the model's state
     if avg_loss_val < best_vloss:
         best_vloss = avg_loss_val
-        model_path = path_out+'model'
         torch.save(model.state_dict(), model_path)
     
     train_loss[epoch] = avg_loss_train
