@@ -5,7 +5,7 @@
 #SBATCH --time=10-23
 #SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
-#SBATCH --output=/share/nas2/dmohan/mcmc/hamilt/dropout/logs/out-slurm_%j.out
+#SBATCH --output=/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/logs/dropout/out-slurm_%j.out
 
 
 pwd;

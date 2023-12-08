@@ -124,7 +124,9 @@ class LeNetDrop(nn.Module):
 
         self.fc1 = nn.Linear(7*7*32, 120)
         self.fc2 = nn.Linear(120,84)
+        
         self.dropout1 = nn.Dropout(p = dropout_rate)
+        self.dropout2 = nn.Dropout(p = dropout_rate)
 
         self.out = nn.Linear(84, output_size)
         #self.imsize = input_size
@@ -152,6 +154,7 @@ class LeNetDrop(nn.Module):
         
         x = x.view(-1, 7*7*32)
         x = torch.relu(self.fc1(x))
+        x = self.dropout2(x)
         x = torch.relu(self.fc2(x))
         x = self.dropout1(x)
         x = self.out(x)
@@ -159,6 +162,6 @@ class LeNetDrop(nn.Module):
         #output = F.log_softmax(x, dim=1)
         return x
 
-    def eval (self, input, target):
-        out = self(input)
-        return out
+    # def eval (self, input, target):
+    #     out = self(input)
+    #     return out

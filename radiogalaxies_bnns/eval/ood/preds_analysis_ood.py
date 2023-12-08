@@ -30,6 +30,7 @@ from uncertainty import entropy_MI, overlapping, GMM_logits, calibration
 import csv
 import seaborn as sns
 import pandas as pd
+import scipy
 
 def energy_function(logits, T = 1):
     
@@ -44,6 +45,8 @@ def energy_function(logits, T = 1):
 energy_score_df = pd.read_csv('./results/ood/energy_scores.csv', index_col=0)
 
 energy_score_exp_df = np.exp(energy_score_df)
+
+#calculate correlation coefficient
 
 
 g = sns.PairGrid(energy_score_df.drop(columns = ['VI MB Conf', 'HMC MB Conf', 

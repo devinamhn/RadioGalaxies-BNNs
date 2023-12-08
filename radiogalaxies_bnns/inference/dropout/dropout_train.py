@@ -11,6 +11,11 @@ import radiogalaxies_bnns.inference.dropout.dropout_utils as dropout_utils
 from radiogalaxies_bnns.inference.models import LeNetDrop
 from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
 
+def enable_dropout(m):
+  for each_module in m.modules():
+    if each_module.__class__.__name__.startswith('Dropout'):
+      each_module.train()
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/dropout/config_mb_dropout.txt')
@@ -28,7 +33,9 @@ model = LeNetDrop(in_channels = 1, output_size =  2, dropout_rate = 0.5 ).to(dev
 model_path = path_out+'model'
 
 criterion = torch.nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay = 1e-4)
+optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay = 1e-5) #1e-6 optim.SGD(model.parameters(), lr = 1e-4)
+
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor = 0.9, patience = 2)
 
 epochs = config_dict['training']['epochs']
 
@@ -49,13 +56,15 @@ for epoch in range(epochs):
 
     print('Epoch {}: LOSS train {} valid {}'.format(epoch, avg_loss_train, avg_loss_val))
 
+
+    scheduler.step(avg_loss_val)
     # Track best performance, and save the model's state
     if avg_loss_val < best_vloss:
         best_vloss = avg_loss_val
         torch.save(model.state_dict(), model_path)
     
     train_loss[epoch] = avg_loss_train
-    val_loss[epoch] = avg_error_val
+    val_loss[epoch] = avg_loss_val
     val_error[epoch] = avg_error_val*100
 
 print('Finished Training')
@@ -81,6 +90,7 @@ plt.xlabel('Epochs')
 plt.ylabel('Error')
 plt.savefig(path_out + 'val_error.png')
 
+model.load_state_dict(torch.load('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/dropout/model'))
 test_error = dropout_utils.eval(model, test_loader, device)
 
 print('Test error: {} %'.format(test_error*100))
@@ -93,3 +103,4 @@ err_mean = torch.mean(test_err)
 err_std = torch.std(test_err)
 print('Test error mean: {} % '.format(err_mean*100))
 print('Test error std: {} % '.format(err_std))
+

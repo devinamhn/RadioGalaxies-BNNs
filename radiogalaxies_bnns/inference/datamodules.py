@@ -62,7 +62,7 @@ class MiraBestDataModule(pl.LightningDataModule):
         self.path = Path(config_dict['data']['datadir'])
         self.datamean = config_dict['data']['datamean']
         self.datastd = config_dict['data']['datastd']
-        self.augment = 'False' #config_dict['data']['augment'] #more useful to define while calling train/val loader?
+        self.augment = 'True' #'False' #config_dict['data']['augment'] #more useful to define while calling train/val loader?
         self.imsize = config_dict['training']['imsize']
 
         if(hmc == True):

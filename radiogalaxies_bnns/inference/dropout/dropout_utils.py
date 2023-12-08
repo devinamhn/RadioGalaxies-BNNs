@@ -24,7 +24,7 @@ def train(model, optimizer, criterion, train_loader, device):
 def validate(model, criterion, validation_loader, device):
     running_loss = 0.0
     running_error = 0.0
-    enable_dropout(model)
+    # enable_dropout(model)
     with torch.no_grad():
         for i, (x_val, y_val) in enumerate(validation_loader):
             x_val, y_val = x_val.to(device), y_val.to(device)
@@ -34,6 +34,7 @@ def validate(model, criterion, validation_loader, device):
             error = (pred!= y_val).to(torch.float32).mean()
             running_loss += loss.item()
             running_error += error
+            print(loss)
     return running_loss/(i+1), running_error/(i+1)
 
 def eval(model, test_loader, device):
