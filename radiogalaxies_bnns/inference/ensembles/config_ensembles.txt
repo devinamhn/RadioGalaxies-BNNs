@@ -1,0 +1,19 @@
+[data]
+dataset: 'MBFRConf'		        # dataset class [MNIST, MBFRConf(ident), MBFRConf+Uncert]
+datadir: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataMiraBest'       # /dataMiraBest or /dataMNIST name of directory to download data into - no . in './' if using pathlib
+datamean: 0.0031                # mean for normalisation MNIST[0.1307, 0.3081], MiraBest[0.0031, 0.0350]
+datastd: 0.0350                 # stdev for normalisation  
+augment: 'False'		        #True/False. No augmentation at test time
+
+[training]
+seed: 123                       #inital seed
+batch_size: 50		            # [128, 50]
+frac_val: 0.2                	# for train:val split
+imsize: 150   
+epochs: 150
+
+
+[output]
+filename_uncert: './results/inits/thin1000/uncert/mirabest_uncert.csv'          #'./dropout/exp2/uncert/mbhybrid_uncert.csv' #'./mbhybrid_uncert.csv' #'./mbuncert_uncert.csv'   #'./mirabest_uncert.csv'
+test_data: 'MBFRConfident'      #'MBFRConfident' 'MBFRUncertain', 'MBHybrid', 'GalaxyMNIST', 'MighteeZoo' 
+path_out: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/ensembles/'
