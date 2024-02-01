@@ -1,0 +1,17 @@
+program: cnn_train.sh
+name: Evaluate-BNNs
+method: grid
+
+metric:
+  goal: minimize
+  name: avg_loss_val
+
+parameters:
+  lr:
+    values: [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+  weight_decay:
+    values: [1e-4, 1e-5, 1e-6]
+  patience: 
+    values: [2, 4, 6, 8, 10]
+  factor:
+    values: [0.1, 0.5, 0.9]
