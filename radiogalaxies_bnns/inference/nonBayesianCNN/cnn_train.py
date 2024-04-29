@@ -18,6 +18,7 @@ jobid = int(sys.argv[1])
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/nonBayesianCNN/config_cnn.txt')
 seed = config_dict['training']['seed'] + jobid
+seed_dataset = config_dict['training']['seed_dataset'] + jobid
 torch.manual_seed(seed + jobid)
 path_out = config_dict['output']['path_out']
 
@@ -28,11 +29,12 @@ factor = config_dict['training']['factor']
 patience = config_dict['training']['patience']
 epochs = config_dict['training']['epochs']
 
-wandb_name = 'CNN'+ str(jobid)
+wandb_name = 'CNN shuffle'+ str(jobid)
 wandb.init(
     project= "Evaluating-BNNs",
     config = {
         "seed": seed,
+        "data_seed": seed_dataset,
         "learning_rate": lr,
         "weight_decay": weight_decay,
         "factor": factor,
@@ -43,7 +45,7 @@ wandb.init(
 )
 
 
-datamodule = MiraBestDataModule(config_dict, hmc=False)
+datamodule = MiraBestDataModule(config_dict, hmc=False, seed_dataset=seed_dataset)
 train_loader = datamodule.train_dataloader()
 validation_loader = datamodule.val_dataloader()
 test_loader = datamodule.test_dataloader()
@@ -75,7 +77,7 @@ for epoch in range(epochs):
     model.train(False)
     avg_loss_val, avg_error_val = cnn_utils.validate(model, criterion, validation_loader, device)
 
-    print('Epoch {}: LOSS train {} valid {}'.format(epoch, avg_loss_train, avg_loss_val))
+    # print('Epoch {}: LOSS train {} valid {}'.format(epoch, avg_loss_train, avg_loss_val))
 
 
     scheduler.step(avg_loss_val)
@@ -105,22 +107,22 @@ torch.save(train_loss, model_path + '/train_loss.pt')
 torch.save(val_loss, model_path + '/val_loss.pt')
 torch.save(val_error, model_path + '/val_error.pt')
 
-plt.figure(dpi=200)
-plt.plot(train_loss, label='train loss')
-plt.plot(val_loss, label='val loss')
-plt.legend(loc='upper right')
-plt.grid(True)
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.savefig(model_path + '/loss.png')
+# plt.figure(dpi=200)
+# plt.plot(train_loss, label='train loss')
+# plt.plot(val_loss, label='val loss')
+# plt.legend(loc='upper right')
+# plt.grid(True)
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.savefig(model_path + '/loss.png')
 
-plt.figure(dpi=200)
-plt.plot(val_error, label='val error')
-plt.legend(loc='upper right')
-plt.grid(True)
-plt.xlabel('Epochs')
-plt.ylabel('Error')
-plt.savefig(model_path + '/val_err.png')
+# plt.figure(dpi=200)
+# plt.plot(val_error, label='val error')
+# plt.legend(loc='upper right')
+# plt.grid(True)
+# plt.xlabel('Epochs')
+# plt.ylabel('Error')
+# plt.savefig(model_path + '/val_err.png')
 
 model.load_state_dict(torch.load(model_path+'/model'))
 test_error = cnn_utils.eval(model, test_loader, device)
