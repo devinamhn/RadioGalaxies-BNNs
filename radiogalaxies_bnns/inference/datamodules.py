@@ -53,7 +53,7 @@ class MNISTDataModule(pl.LightningDataModule):
 
 class MiraBestDataModule(pl.LightningDataModule):
     
-    def __init__(self, config_dict, hmc): #, config):
+    def __init__(self, config_dict, hmc, seed_dataset = 15): #, config):
         super().__init__()
 
         self.batch_size = config_dict['training']['batch_size']
@@ -64,6 +64,7 @@ class MiraBestDataModule(pl.LightningDataModule):
         self.datastd = config_dict['data']['datastd']
         self.augment = 'True' #'False' #config_dict['data']['augment'] #more useful to define while calling train/val loader?
         self.imsize = config_dict['training']['imsize']
+        self.seed_dataset = seed_dataset
 
         if(hmc == True):
             self.batch_size_train = 584
@@ -127,7 +128,7 @@ class MiraBestDataModule(pl.LightningDataModule):
         indices = list(range(dataset_size))
         split = int(dataset_size*0.2) #int(np.floor(validation_split * dataset_size))
         shuffle_dataset = True
-        random_seed = 15
+        random_seed = self.seed_dataset
 
         if shuffle_dataset :
             np.random.seed(random_seed)
