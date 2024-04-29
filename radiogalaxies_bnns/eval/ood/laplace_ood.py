@@ -1,19 +1,59 @@
-import numpy as np
 import torch
+import torch.optim as optim
+import numpy as np
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import csv
+import scipy
+import pandas as pd
+import seaborn as sns
 import torch.distributions as dists
-from models import LeNetDrop
-import utils
-from datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
-from uncertainty import entropy_MI, overlapping, GMM_logits, calibration
+
+from radiogalaxies_bnns.inference.models import LeNet, LeNetDrop
+import radiogalaxies_bnns.inference.utils as utils
+from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
+from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, overlapping, GMM_logits, calibration
 
 from laplace import Laplace
 from netcal.metrics import ECE
 
+def energy_function(logits, T = 1):
+    
+    # print(-torch.logsumexp(pred_list_mbconf, dim = 2))
+    mean_energy = torch.mean(-torch.logsumexp(logits, dim = 2), dim = 0).detach().numpy()
+    std_energy = torch.std(-torch.logsumexp(logits, dim = 2), dim = 0).detach().numpy()
+
+    return mean_energy
+
+
+energy_score_df = pd.read_csv('radiogalaxies_bnns/results/ood/lla_energy_scores.csv', index_col=0)
+
+binwidth = 1#0.10
+ylim_lower = 0
+ylim_upper = 7
+
+bin_lower = -30 #-80
+bin_upper = 2
+
+
+plt.clf()
+plt.figure(dpi=300)
+sns.histplot(energy_score_df[['LLA MB Conf', 'LLA Galaxy MNIST', 'LLA MIGHTEE']], binrange = [bin_lower, bin_upper], 
+             binwidth = binwidth)
+plt.ylim(ylim_lower, ylim_upper)
+plt.xlabel('Negative Energy')#Negative
+plt.xticks(np.arange(bin_lower, bin_upper, 5))
+plt.savefig('radiogalaxies_bnns/results/ood/energy_hist_lla.png')
+
+
+
+exit()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config_dict, config = utils.parse_config('config_mb_dropout.txt')
-seed = 123 #config['training']['seed']
-torch.manual_seed(seed)
+config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/nonBayesianCNN/config_cnn.txt')
+# seed = 123 #config['training']['seed']
+# torch.manual_seed(seed)
+path_out = config_dict['output']['path_out']
 
 datamodule = MiraBestDataModule(config_dict, hmc=False)
 train_loader = datamodule.train_dataloader()
@@ -22,11 +62,9 @@ test_loader = datamodule.test_dataloader()
 targets = torch.cat([y for x, y in test_loader], dim=0).to(device)#.numpy()
 
 
-#Non-Bayesian CNN if dropout_rate = 0
-model = LeNetDrop(in_channels = 1, output_size =  2, dropout_rate = 0 ).to(device) #MLP(150, 200, 10)
-
-
-model.load_state_dict(torch.load('./dropout/mlp/model', map_location=torch.device('cpu') ))
+model = model = LeNet(in_channels=1, output_size=2).to(device)
+model_path = path_out + str(8)
+model.load_state_dict(torch.load(model_path+'/model', map_location=torch.device(device) ))
 
 @torch.no_grad()
 def predict(dataloader, model, laplace=False):
@@ -40,25 +78,63 @@ def predict(dataloader, model, laplace=False):
 
     return torch.cat(py)#.cpu().numpy()
 
-# probs_map = predict(test_loader, model, laplace=False)
-# print((probs_map.argmax(-1) == targets)*1)
-# acc_map = ((probs_map.argmax(-1) == targets)*1).float().mean()
-# ece_map = ECE(bins=8).measure(probs_map.cpu().numpy(), targets.cpu().numpy())
-# nll_map = -dists.Categorical(probs_map).log_prob(targets).mean()
-# print(f'[MAP] Acc.: {acc_map:.1%}; ECE: {ece_map:.1%}; NLL: {nll_map:.3}')
-
 
 # Laplace
 la = Laplace(model, 'classification',
              subset_of_weights= 'last_layer',
              hessian_structure='diag')
 la.fit(train_loader)
-la.optimize_prior_precision(method='marglik')
+la.optimize_prior_precision(pred_type = 'nn', method='marglik', verbose = True)
+# la.optimize_prior_precision(method='marglik')
 
 
-test_loader, test_data1, data_type, test_data = testloader_mb_uncert(config_dict['output']['test_data'], config_dict['data']['datadir'])
+print("MBCONF")
+pred_list_mbconf= utils.get_logits_la(la, test_data_uncert='MBFRConfident', 
+                                             device=device, path='./dataMiraBest', 
+                                             )
+mean_energy_conf = energy_function(pred_list_mbconf)
+
+print("MBUNCERT")
+pred_list_mbuncert= utils.get_logits_la(la, test_data_uncert='MBFRUncertain', 
+                                               device=device, path='./dataMiraBest',
+                                               )
+mean_energy_uncert = energy_function(pred_list_mbuncert)
+
+print("MBHYBRID")
+pred_list_mbhybrid = utils.get_logits_la(la, test_data_uncert='MBHybrid', 
+                                                device=device, path='./dataMiraBest',
+                                                )
+mean_energy_hybrid = energy_function(pred_list_mbhybrid)
 
 
+print("GalaxyMNIST")
+pred_list_gal_mnist= utils.get_logits_la(la, test_data_uncert='Galaxy_MNIST', 
+                                                device=device, path='./dataGalaxyMNISTHighres',
+                                                )
+mean_energy_galmnist =energy_function(pred_list_gal_mnist)
+
+print("MIGHTEE")
+pred_list_mightee = utils.get_logits_la(la, test_data_uncert='mightee', 
+                                               device=device, path='./',
+                                               )
+mean_energy_mightee =energy_function(pred_list_mightee)
+
+
+s1 = pd.Series(mean_energy_conf, name = 'LLA MB Conf')
+s2 = pd.Series(mean_energy_uncert, name = 'LLA MB Uncert')
+s3 = pd.Series(mean_energy_hybrid, name = 'LLA MB Hybrid')
+s4 = pd.Series(mean_energy_galmnist, name = 'LLA Galaxy MNIST')
+s5 = pd.Series(mean_energy_mightee, name = 'LLA MIGHTEE')
+energy_score_df = pd.DataFrame([s1, s2, s3, s4, s5]).T
+
+
+
+energy_score_df.to_csv('radiogalaxies_bnns/results/ood/lla_energy_scores.csv')
+
+# test_loader, test_data1, data_type, test_data = testloader_mb_uncert(config_dict['output']['test_data'], config_dict['data']['datadir'])
+
+
+exit()
 
 ############################
 # UCE Calculation
