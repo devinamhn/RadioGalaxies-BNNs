@@ -107,9 +107,9 @@ class LeNet(nn.Module):
         #output = F.log_softmax(x, dim=1)
         return x
 
-    def eval (self, input, target):
-        out = self(input)
-        return out
+    # def eval (self, input, target):
+    #     out = self(input)
+    #     return out
     
 
 class LeNetDrop(nn.Module):
