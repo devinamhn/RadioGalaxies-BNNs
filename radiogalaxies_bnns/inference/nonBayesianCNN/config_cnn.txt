@@ -7,6 +7,7 @@ augment: 'False'		        #True/False. No augmentation at test time
 
 [training]
 seed: 122                     #inital seed
+seed_dataset: 14
 batch_size: 50		            # [128, 50]
 frac_val: 0.2                	# for train:val split
 imsize: 150   
@@ -19,4 +20,4 @@ patience: 2
 [output]
 filename_uncert: './results/inits/thin1000/uncert/mirabest_uncert.csv'          #'./dropout/exp2/uncert/mbhybrid_uncert.csv' #'./mbhybrid_uncert.csv' #'./mbuncert_uncert.csv'   #'./mirabest_uncert.csv'
 test_data: 'MBFRConfident'      #'MBFRConfident' 'MBFRUncertain', 'MBHybrid', 'GalaxyMNIST', 'MighteeZoo' 
-path_out: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/nonBayesianCNN/cnn_'
+path_out: '/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/results/nonBayesianCNNdatashuffle/cnn_'
