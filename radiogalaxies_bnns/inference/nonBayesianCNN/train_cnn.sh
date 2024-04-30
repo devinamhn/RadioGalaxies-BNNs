@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
 #SBATCH --array=1-10
-#SBATCH --output=/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/logs/cnn/out-slurm_%j.out
+#SBATCH --output=/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/logs/cnn/datashuffle/out-slurm_%j.out
 
 
 pwd;
