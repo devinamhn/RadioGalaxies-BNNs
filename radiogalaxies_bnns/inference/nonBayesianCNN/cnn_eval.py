@@ -49,16 +49,16 @@ print('TEST DATASET')
 print(config_dict['output']['test_data'])
 test_loader, test_data1, data_type, test_data = testloader_mb_uncert(config_dict['output']['test_data'], config_dict['data']['datadir'])
 
-for i, (x_test, y_test) in enumerate(test_loader):
-    x_test, y_test = x_test.to(device), y_test.to(device)
+# for i, (x_test, y_test) in enumerate(test_loader):
+#     x_test, y_test = x_test.to(device), y_test.to(device)
     
 model = LeNet(in_channels = 1, output_size =  2).to(device)
 
 n_ensembles = 10
 
-softmax_ensemble, logits_ensemble = cnn_utils.eval_ensemble(model, test_loader, device, n_ensembles, path_out, criterion)
-softmax_ensemble = torch.reshape(softmax_ensemble, (len(y_test), n_ensembles, 2))
-logits_ensemble = torch.reshape(logits_ensemble, (len(y_test), n_ensembles, 2))
+# softmax_ensemble, logits_ensemble = cnn_utils.eval_ensemble(model, test_loader, device, n_ensembles, path_out, criterion)
+# softmax_ensemble = torch.reshape(softmax_ensemble, (len(y_test), n_ensembles, 2))
+# logits_ensemble = torch.reshape(logits_ensemble, (len(y_test), n_ensembles, 2))
 
 
 # print(logits_ensemble[0:1, :, :2][0])
@@ -73,20 +73,22 @@ error_all = []
 entropy_all = []
 mi_all = []
 aleat_all = []
+loss_all = [] 
 
 fr1 = 0
 fr2 = 0
+indices = np.arange(0, len(test_data), 1)
 
-loss_all = [] 
+for index in indices:
 
-color = []
-for k in range(len(y_test)):
+    x = torch.unsqueeze(test_data[index][0].clone().detach(), 0)# torch.unsqueeze(torch.tensor(x_test[k]),0)
+    y = torch.unsqueeze(torch.tensor(test_data[index][1]),0) #torch.unsqueeze(torch.tensor(y_test[k]),0)
     # print('galaxy', k)
 
-    x = [0, 1]
-    x = np.tile(x, (n_ensembles, 1))
+    # x = [0, 1]
+    # x = np.tile(x, (n_ensembles, 1))
 
-    target = y_test[k].cpu().detach().numpy()
+    target = y.detach().numpy().flatten()[0] #y_test[k].cpu().detach().numpy()
 
     if(target == 0):
         fr1+= 1
@@ -96,10 +98,41 @@ for k in range(len(y_test)):
     # logits = pred_list[burn:][:, k:(k+1), :2].detach().numpy()
     # softmax_values = F.softmax(pred_list[burn:][:, k:(k+1), :2], dim =-1).detach().numpy()
 
-    softmax_values = softmax_ensemble[k:k+1, :, :2].cpu().detach().numpy()
-    loss = criterion(logits_ensemble[k:k+1, :, :2][0], torch.tile(y_test[k], (n_ensembles, 1)).flatten())
+    # softmax_values = softmax_ensemble[k:k+1, :, :2].cpu().detach().numpy()
+    # loss = criterion(logits_ensemble[k:k+1, :, :2][0], torch.tile(y_test[k], (n_ensembles, 1)).flatten())
 
-    sorted_softmax_values, lower_index, upper_index, mean_samples = credible_interval(softmax_values[:, :, 0].flatten(), 1) #0.64
+    output_ = []
+    logits_=[]
+    prediction=[]
+    y_test_all = []
+    errors = []
+
+    with torch.no_grad():
+        model.train(False)
+        for j in range(n_ensembles):
+            x_test, y_test = x.to(device), y.to(device)
+
+            model_path = path_out+ str(j+1) +'/model'# +'/model' #
+            model.load_state_dict(torch.load(model_path))
+            
+            outputs = model(x_test)
+            softmax = F.softmax(outputs, dim = -1)
+            pred = softmax.argmax(dim=-1)
+
+            # loss = criterion(outputs, torch.tile(y_test[k], (n_ensembles, 1)).flatten())
+
+            output_.append(softmax.cpu().detach().numpy().flatten())
+            logits_.append(outputs.cpu().detach().numpy().flatten())
+            
+            # predict = pred.mean(dim=0).argmax(dim=-1)
+
+            prediction.append(pred.cpu().detach().numpy().flatten()[0])
+            y_test_all.append(y_test.cpu().detach().numpy().flatten()[0])
+    
+    softmax = np.array(output_)#.cpu().detach().numpy())
+    y_logits = np.array(logits_)#.cpu().detach().numpy())
+
+    sorted_softmax_values, lower_index, upper_index, mean_samples = credible_interval(softmax[:, 0].flatten(), 1) #0.64
     upper_index = upper_index - 1
     # print("90% credible interval for FRI class softmax", sorted_softmax_values[lower_index], sorted_softmax_values[upper_index])
     
@@ -129,19 +162,25 @@ for k in range(len(y_test)):
     entropy_all.append(entropy/np.log(2))    
     mi_all.append(mutual_info/np.log(2))
     aleat_all.append(entropy_singlepass/np.log(2))
-    loss_all.append(loss.item())
+    # loss_all.append(loss.item())
 
 
 print("mean and std of error")
 print(error_all)
-print(np.round(np.mean(error_all)*100, 3))
-print(np.round(np.std(error_all), 3 ))
+print("mean", np.round(np.mean(error_all)*100, 3))
+print("std", np.round(np.std(error_all), 3 ))
+
+print("Average of expected error")
+print((np.array(avg_error_mean)).mean()*100)
+print((np.array(avg_error_mean)).std())
 
 
-print("Average CE Loss")
-print(loss_all)
-print(np.round(np.mean(loss_all), 3))
-print(np.round(np.std(loss_all), 3 ))
+
+# print("Average CE Loss")
+# # print(loss_all)
+# print("mean", np.round(np.mean(loss_all), 3))
+# print("std", np.round(np.std(loss_all), 3 ))
+
 
 fr1_start = 0 #{0}
 fr1_end = fr1 #{49, 68}
