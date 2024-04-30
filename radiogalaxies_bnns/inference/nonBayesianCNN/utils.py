@@ -66,7 +66,7 @@ def eval_ensemble(model, test_loader, device, n_ensembles, path_out, criterion):
     softmax_ensemble = []
     logits_ensemble = []
     for j in range(n_ensembles):
-        model_path = path_out+ str(j+1) +'/model'
+        model_path = path_out+ str(8) +'/model' #str(j+1) +'/model'
         model.load_state_dict(torch.load(model_path))
         softmax = []
         logits = []
