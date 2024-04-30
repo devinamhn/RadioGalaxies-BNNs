@@ -72,13 +72,9 @@ for epoch in range(epochs):
 
     model.train(True)
     avg_loss_train = cnn_utils.train(model, optimizer, criterion, train_loader, device)
-
     
     model.train(False)
     avg_loss_val, avg_error_val = cnn_utils.validate(model, criterion, validation_loader, device)
-
-    # print('Epoch {}: LOSS train {} valid {}'.format(epoch, avg_loss_train, avg_loss_val))
-
 
     scheduler.step(avg_loss_val)
     # Track best performance, and save the model's state
@@ -106,23 +102,6 @@ wandb.log({"best_vloss_epoch": best_epoch, "best_vloss": best_vloss})
 torch.save(train_loss, model_path + '/train_loss.pt')
 torch.save(val_loss, model_path + '/val_loss.pt')
 torch.save(val_error, model_path + '/val_error.pt')
-
-# plt.figure(dpi=200)
-# plt.plot(train_loss, label='train loss')
-# plt.plot(val_loss, label='val loss')
-# plt.legend(loc='upper right')
-# plt.grid(True)
-# plt.xlabel('Epochs')
-# plt.ylabel('Loss')
-# plt.savefig(model_path + '/loss.png')
-
-# plt.figure(dpi=200)
-# plt.plot(val_error, label='val error')
-# plt.legend(loc='upper right')
-# plt.grid(True)
-# plt.xlabel('Epochs')
-# plt.ylabel('Error')
-# plt.savefig(model_path + '/val_err.png')
 
 model.load_state_dict(torch.load(model_path+'/model'))
 test_error = cnn_utils.eval(model, test_loader, device)
