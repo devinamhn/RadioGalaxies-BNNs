@@ -8,6 +8,7 @@ from torch.utils.data import SubsetRandomSampler
 import torch.nn.functional as F
 import torchvision
 from pathlib import Path
+import torch.utils.data as D
 
 from radiogalaxies_bnns.datasets import mirabest
 from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, calibration
@@ -145,149 +146,7 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
                              download=False)
             #uncomment for test set
             indices = np.arange(0, len(test_data), 1)
-    
-    #     elif(test == False):
-    #         #validation set
-    #         train_data_confident = mirabest.MBFRConfident(path, train=True,
-    #                                           transform=transform, target_transform=None,
-    #                                           download=False)
-    #         train_data_conf = train_data_confident
-            
-    #         #train valid test
-    #         dataset_size = len(train_data_conf)
-    #         indices = list(range(dataset_size))
-    #         split = int(dataset_size*0.2) #int(np.floor(validation_split * dataset_size))
-    #         shuffle_dataset = True
-    #         random_seed = 15
-    #         batch_size = 50
-    #         if shuffle_dataset :
-    #             np.random.seed(random_seed)
-    #             np.random.shuffle(indices)
-    #         train_indices, val_indices = indices[split:], indices[:split]
-                
-    #         # Creating data samplers and loaders:
-    #         #train_sampler = SubsetRandomSampler(train_indices)
-    #         valid_sampler = SubsetRandomSampler(val_indices)
-                
-    #         #train_loader = torch.utils.data.DataLoader(train_data_conf, batch_size=batch_size, sampler=train_sampler)
-    #         #validation_loader = torch.utils.data.DataLoader(train_data_conf, batch_size=batch_size, sampler=valid_sampler)
-            
-    #         #print(val_indices)
-    #         #validation_loader = train_data_confident[val_indices]
-            
-    #         test_data = torch.utils.data.Subset(train_data_conf, val_indices)
-
-    #         #test_loader = torch.utils.data.DataLoader(dataset=test_data_conf, batch_size=batch_size,shuffle=True)
-
-    #         #indices = np.sort(val_indices)
-            
-    #         fr1_all = 0
-    #         fr2_all = 0
-            
-    #         #y_test_all_arr = []
-    #         index_fr1, index_fr2 = [], []
-    #         for index in np.arange(0, len(test_data), 1):
-                
-    #             y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-    #             target = y.detach().numpy().flatten()[0]
-    #             #print(target)
-    #             if(target == 0):
-    #                 fr1_all+= 1
-    #                 index_fr1.append(index)
-                    
-    #             elif(target==1):
-    #                 fr2_all+= 1
-    #                 index_fr2.append(index)
-                    
-    #         index_sorted = np.append(np.array(index_fr1), np.array(index_fr2))
-    #         #print(index_sorted)
-    #         #print("fr1_all=", fr1_all, "fr2_all=", fr2_all, "ratio =", fr1_all/fr2_all)
-            
-    #         for index in index_sorted:
-    #             y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-    #             target = y.detach().numpy().flatten()[0]
-    #             #print(target)
   
-    #         indices = index_sorted
-    #         #print(indices)
-    #     elif(test == "combined"):
-    #         test_data_ = mirabest.MBFRConfident(path, train=False,
-    #                         transform=transform, target_transform=None,
-    #                         download=False)
-            
-    #         #validation set
-    #         train_data_confident = mirabest.MBFRConfident(path, train=True,
-    #                                           transform=transform, target_transform=None,
-    #                                           download=False)
-    #         train_data_conf = train_data_confident
-            
-    #         #train valid test
-    #         dataset_size = len(train_data_conf)
-    #         indices = list(range(dataset_size))
-    #         split = int(dataset_size*0.2) #int(np.floor(validation_split * dataset_size))
-    #         shuffle_dataset = True
-    #         random_seed = 15
-    #         batch_size = 50
-    #         if shuffle_dataset :
-    #             np.random.seed(random_seed)
-    #             np.random.shuffle(indices)
-    #         train_indices, val_indices = indices[split:], indices[:split]
-                
-    #         # Creating data samplers and loaders:
-    #         #train_sampler = SubsetRandomSampler(train_indices)
-            
-    #         #valid_sampler = SubsetRandomSampler(val_indices)
-            
-    #         #train_loader = torch.utils.data.DataLoader(train_data_conf, batch_size=batch_size, sampler=train_sampler)
-    #         #validation_loader = torch.utils.data.DataLoader(train_data_conf, batch_size=batch_size, sampler=val_indices)
-            
-    #         val_indices = np.sort(val_indices)
-    #         #print(val_indices)
-            
-    #         #validation_loader = train_data_confident[val_indices]
-            
-    #         #test_data = train_data_confident
-    #         #test_loader = torch.utils.data.DataLoader(dataset=test_data_conf, batch_size=batch_size,shuffle=True)
-    #         val_data =torch.utils.data.Subset(train_data_conf, val_indices)
-            
-    #         test_data = torch.utils.data.ConcatDataset([val_data, test_data_])
-            
-    #         #print(len(test_data))
-            
-    #         indices = np.arange(0, len(test_data), 1)
-            
-    #         fr1_all = 0
-    #         fr2_all = 0
-            
-    #         #y_test_all_arr = []
-    #         index_fr1, index_fr2 = [], []
-    #         for index in np.arange(0, len(test_data), 1):
-                
-    #             y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-    #             target = y.detach().numpy().flatten()[0]
-    #             #print(target)
-    #             if(target == 0):
-    #                 fr1_all+= 1
-    #                 index_fr1.append(index)
-                    
-    #             elif(target==1):
-    #                 fr2_all+= 1
-    #                 index_fr2.append(index)
-                    
-    #         index_sorted = np.append(np.array(index_fr1), np.array(index_fr2))
-    #         #print(index_sorted)
-    #         #print("fr1_all=", fr1_all, "fr2_all=", fr2_all, "ratio =", fr1_all/fr2_all)
-            
-    #         for index in index_sorted:
-    #             y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-    #             target = y.detach().numpy().flatten()[0]
-    #             #print(target)
-                
-            
-    #         #print(indices)
-    #         indices = index_sorted
-                    
-    #     data_type = 'MBFR_Conf'
     elif(test_data_uncert == 'MBFRUncertain'):
         # uncertain
         
@@ -330,16 +189,12 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
     fr1 = 0
     fr2 = 0
     
-    # print(indices)
-
     for index in indices:
         
         x = torch.unsqueeze(torch.tensor(test_data[index][0]),0)
         y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-        #print("target is",y)
         target = y.detach().numpy().flatten()[0]
         samples_iter = 200
-        #print(target)
         
         if(target == 0):
             fr1+= 1
@@ -354,8 +209,6 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
 
         #for a single datapoint
         with torch.no_grad():
-            #accs_ =[]
-            # i = 1
             model.train(False)
             enable_dropout(model)
 
@@ -373,26 +226,10 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
                 # predict = pred.mean(dim=0).argmax(dim=-1)
 
                 prediction.append(pred.cpu().detach().numpy().flatten()[0])
-                y_test_all.append(y_test.cpu().detach().numpy().flatten()[0])
-
-
-        # softmax=[]
-        # logit_arr = []
-        # for i in range(samples_iter):
-        #     a = np.exp(np.array(output_[i][0]))
-        #     softmax.append(a[0])
-        #     logit_arr.append(np.array(logits_[i][0]))
-
-        # print("CHECKING LOGITS AND OUTPUT")
-        # print(index)
-        # print(logits_)
-        # print(output_)
-        # print(prediction)        
+                y_test_all.append(y_test.cpu().detach().numpy().flatten()[0])      
 
         softmax = np.array(output_)#.cpu().detach().numpy())
         y_logits = np.array(logits_)#.cpu().detach().numpy())
-        
-        # print(softmax.shape)
 
         sorted_softmax_values, lower_index, upper_index, mean_samples = credible_interval(softmax[:, 0].flatten(), 0.64)
         # print("90% credible interval for FRI class softmax", sorted_softmax_values[lower_index], sorted_softmax_values[upper_index])
@@ -400,15 +237,8 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
         sorted_softmax_values_fr1 = sorted_softmax_values[lower_index:upper_index]
         sorted_softmax_values_fr2 = 1 - sorted_softmax_values[lower_index:upper_index]
 
-        # print(sorted_softmax_values_fr1)
-        # print(sorted_softmax_values_fr2)
         softmax_mean = np.vstack((mean_samples, 1-mean_samples)).T
-        softmax_credible = np.vstack((sorted_softmax_values_fr1, sorted_softmax_values_fr2)).T   
-   
-        # mean_logits = np.mean(y_logits,axis=0)
-        # var_logits = np.std(y_logits,axis=0)
-        #print("Mean of Logits", mean_logits)
-        #print("Stdev pf Logits", var_logits)
+        softmax_credible = np.vstack((sorted_softmax_values_fr1, sorted_softmax_values_fr2)).T
         
         # entropy, mutual_info, entropy_singlepass = entropy_MI(softmax, samples_iter)
         entropy, mutual_info, entropy_singlepass = entropy_MI(softmax_credible, 
@@ -421,25 +251,9 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
 
         errors =  np.mean((pred != y_test_all).astype('uint8'))
 
-        # print(softmax_mean)
-        # print(target)
         pred_mean = np.argmax(softmax_mean, axis = 1)
         # print(pred_mean, np.argmax(softmax_mean))
         error_mean = (pred_mean != target)*1
-
-        # print(error_mean)
-    
-        #print("Entropy:", entropy)
-        #print("Mutual Information:", mutual_info)
-        #print("Entropy of a single pass:", entropy_singlepass)
-        
-        
-        # prediction = np.array(prediction)
-        # y_test_all = np.array(y_test_all)
-        
-        
-        # errors = np.mean((prediction != y_test_all).astype('uint8'))
-        # print(errors)
         
         error_all.append(errors)
         avg_error_mean.append(error_mean)
@@ -447,26 +261,6 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
         mi_all.append(mutual_info/np.log(2))
         aleat_all.append(entropy_singlepass/np.log(2))
         # loss_all.append(loss.item())
-
-    #print("Validation: fr1=", fr1, " fr2=", fr2, " ratio", fr1/fr2)
-    #print("Train: fr1=", fr1_all - fr1, " fr2=",fr2_all- fr2, " ratio",(fr1_all - fr1)/(fr2_all- fr2) )
-    
-    #print(len(error_all[0:49]), len(error_all[49:104]))    
-    #print(error_all)
-    #print(entropy_all)
-    '''
-    outputs_ = np.array(output_)
-    prediction = np.array(prediction)
-    softmax= np.exp(outputs_)
-    y_test_all = np.array(y_test_all)
-    logits = np.array(logits)
-    #print(output_)
-    #print(softmax)
-    #print(y_test_all)
-    #print(prediction)
-    '''
-    
-    
     
     fr1_start = 0 #{0}
     fr1_end = fr1 #{49, 68}
@@ -474,47 +268,22 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
     fr2_end = len(indices) #len(val_indices) #{104, 145}
     
     # print(fr1_start, fr1_end, fr2_start, fr2_end)
-    
-    # print(error_all)
-    #entropy, mutual_info, entropy_singlepass = entropy_MI(softmax, samples_iter)
+  
     n_bins = 8
     
     uce_pe  = calibration(path_out, np.array(error_all), np.array(entropy_all), n_bins, x_label = 'predictive entropy')
     # print("Predictive Entropy")
     # print("uce = ", np.round(uce_pe, 2))
-    # uce_0  = calibration(path_out, np.array(error_all[fr1_start:fr1_end]), np.array(entropy_all[fr1_start:fr1_end]), n_bins, x_label = 'predictive entropy') 
-    # print("UCE FRI= ", np.round(uce_0, 2))
-    # uce_1  = calibration(path_out, np.array(error_all[fr2_start:fr2_end]), np.array(entropy_all[fr2_start:fr2_end]), n_bins, x_label = 'predictive entropy')
-    # print("UCE FRII = ", np.round(uce_1, 2))
-    # cUCE = (uce_0 + uce_1)/2 
-    # print("cUCE=", np.round(cUCE, 2))
-    
-    #max_mi = np.amax(np.array(mi_all))
-    #print("max mi",max_mi)
-    #mi_all = mi_all/max_mi
-    #print(mi_all)
-    #print("max mi",np.amax(mi_all))
+
     uce_mi  = calibration(path_out, np.array(error_all), np.array(mi_all), n_bins, x_label = 'mutual information')
     # print("Mutual Information")
     # print("uce = ", np.round(uce_mi, 2))
-    # uce_0  = calibration(path_out, np.array(error_all[fr1_start:fr1_end]), np.array(mi_all[fr1_start:fr1_end]), n_bins, x_label = 'mutual information') 
-    # print("UCE FRI= ", np.round(uce_0, 2))
-    # uce_1  = calibration(path_out, np.array(error_all[fr2_start:fr2_end]), np.array(mi_all[fr2_start:fr2_end]), n_bins, x_label = 'mutual information')
-    # print("UCE FRII = ", np.round(uce_1, 2))
-    # cUCE = (uce_0 + uce_1)/2 
-    # print("cUCE=", np.round(cUCE,2))  
-    
+
     
     uce_ae  = calibration(path_out, np.array(error_all), np.array(aleat_all), n_bins, x_label = 'average entropy')
     # print("Average Entropy")
     # print("uce = ", np.round(uce_ae, 2))
-    # uce_0  = calibration(path_out, np.array(error_all[fr1_start:fr1_end]), np.array(aleat_all[fr1_start:fr1_end]), n_bins, x_label = 'average entropy') 
-    # print("UCE FRI= ",np.round(uce_0, 2))
-    # uce_1  = calibration(path_out, np.array(error_all[fr2_start:fr2_end]), np.array(aleat_all[fr2_start:fr2_end]), n_bins, x_label = 'average entropy')
-    # print("UCE FRII = ", np.round(uce_1, 2))
-    # cUCE = (uce_0 + uce_1)/2 
-    # print("cUCE=", np.round(cUCE, 2))  
-    
+
     print("mean and std of error")
     print(error_all)
     print(np.mean(error_all)*100)
@@ -1068,3 +837,34 @@ def get_logits_la(la, test_data_uncert, device, path):
 
     # print(output_)
     return output_
+
+def rgz_cut(rgz_dset, threshold, mb_cut: bool = True, remove_duplicates=False):
+    """Cut rgz data-set based on angular size and whether data-point is contained in MiraBest"""
+
+    n = len(rgz_dset)
+    idx_bool = np.ones(n, dtype=bool)
+    idx = np.arange(n)
+
+    if remove_duplicates:
+        idx_bool = np.zeros(n, dtype=bool)
+        _, idx_unique = np.unique(rgz_dset.data, axis=0, return_index=True)
+        idx_bool[idx_unique] = True
+
+        print(f"Removed {n - np.count_nonzero(idx_bool)} duplicate samples")
+        n = np.count_nonzero(idx_bool)
+
+    idx_bool *= rgz_dset.sizes > threshold
+    print(f"Removing {n - np.count_nonzero(idx_bool)} samples below angular size threshold.")
+    n = np.count_nonzero(idx_bool)
+
+    if mb_cut:
+        idx_bool *= rgz_dset.mbflg == 0
+
+        # Print number of MB samples removed
+        print(f"Removed {n - np.count_nonzero(idx_bool)} MiraBest samples from RGZ")
+
+    idx = np.argwhere(idx_bool)
+
+    subset = D.Subset(rgz_dset, idx)
+    print(f"RGZ dataset cut from {n} to {len(subset)} samples")
+    return subset
