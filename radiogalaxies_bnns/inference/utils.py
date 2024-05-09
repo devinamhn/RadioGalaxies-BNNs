@@ -125,57 +125,11 @@ def credible_interval(samples, credibility):
 
 
 def calibration_test(path_out, model, test_data_uncert, device, path, test):
+    #called in dropout_eval()
+    test_data = get_test_data(test_data_uncert, path, device)
 
-    test_data = test_data_uncert
-    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-    test_data1 = test_data_uncert
-    
-    # test = "combined" #{True, False, "combined"}
-    # for test_data and test_data1
-    
-    if(test_data_uncert == 'MBFRConfident'):
-        
-        if(test == True):
-        # confident test set
-            test_data = mirabest.MBFRConfident(path, train=False,
-                             transform=transform, target_transform=None,
-                             download=False)
-            
-            test_data1 = mirabest.MBFRConfident(path, train=False,
-                             transform=None, target_transform=None,
-                             download=False)
-            #uncomment for test set
-            indices = np.arange(0, len(test_data), 1)
-  
-    elif(test_data_uncert == 'MBFRUncertain'):
-        # uncertain
-        
-        test_data = mirabest.MBFRUncertain(path, train=False,
-                         transform=transform, target_transform=None,
-                         download=False)
-        
-        test_data1 = mirabest.MBFRUncertain(path, train=False,
-                         transform=None, target_transform=None,
-                         download=False)
-        data_type = 'MBFR_Uncert'
-    elif(test_data_uncert == 'MBHybrid'):
-        #hybrid
-        test_data = mirabest.MBHybrid(path, train=True,
-                         transform=transform, target_transform=None,
-                         download=False)
-        test_data1 = mirabest.MBHybrid(path, train=True,
-                         transform=None, target_transform=None,
-                         download=False)
-        data_type = 'MBHybrid'
-
-    # elif(test_data_uncert == 'Galaxy_MNIST'):
-
-
-    else:
-        print("Test data for uncertainty quantification misspecified")
     indices = np.arange(0, len(test_data), 1)
     logit = True
-    
   
     num_batches_test = 1
     
