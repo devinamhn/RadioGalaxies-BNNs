@@ -300,9 +300,7 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
 
     return mean_expected_error, std_expected_error, uce_pe, uce_mi, uce_ae
 
-
-def get_logits(model, test_data_uncert, device, path):
-
+def get_test_data(test_data_uncert, path, device):
     # test_data = test_data_uncert
     if(test_data_uncert == 'MBFRConfident'):
         transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
@@ -360,7 +358,13 @@ def get_logits(model, test_data_uncert, device, path):
         test_data = data
 
     else:
-        print("Test data for uncertainty quantification misspecified")
+        print("Test data for uncertainty quantification misspecified")    
+
+    return test_data
+
+def get_logits(model, test_data_uncert, device, path):
+    test_data = get_test_data(test_data_uncert, path, device)
+
     indices = np.arange(0, len(test_data), 1)
     logit = True
   
@@ -403,64 +407,8 @@ def get_logits(model, test_data_uncert, device, path):
 
 
 def get_logits_mlp(model, test_data_uncert, device, path):
+    test_data = get_test_data(test_data_uncert, path, device)
 
-    # test_data = test_data_uncert
-    if(test_data_uncert == 'MBFRConfident'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRConfident(path, train=False,
-                            transform=transform, target_transform=None,
-                            download=False)
-    elif(test_data_uncert == 'MBFRUncertain'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRUncertain(path, train=False,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'MBHybrid'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBHybrid(path, train=True,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'Galaxy_MNIST'):
-        transform = torchvision.transforms.Compose([ torchvision.transforms.ToTensor(),
-        torchvision.transforms.Resize((150,150), antialias = True), 
-        torchvision.transforms.Grayscale(),
-        ])
-        train_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=True,  # by default, or set False for test set
-            transform = transform
-        )
-        test_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=False,  # by default, or set False for test set
-            transform = transform
-        )
-        gal_mnist_test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=104, shuffle = False)
-
-        for i, (x_test_galmnist, y_test_galmnist) in enumerate(gal_mnist_test_loader):
-            x_test_galmnist, y_test_galmnist = x_test_galmnist.to(device), y_test_galmnist.to(device)
-            y_test_galmnist = torch.zeros(104).to(device)
-            if(i==0):
-                break
-        test_data = x_test_galmnist
-
-    elif(test_data_uncert == 'mightee'):
-        transform = torchvision.transforms.Compose(
-            [
-                torchvision.transforms.ToTensor(),
-                torchvision.transforms.Resize(150),  # Rescale to adjust for resolution difference between MIGHTEE & RGZ - was 70
-                torchvision.transforms.Normalize((1.59965605788234e-05,), (0.0038063037602458706,)),
-            ]
-        )
-        paths = Path_Handler()._dict()
-        set = 'certain'
-        data = MighteeZoo(path=paths["mightee"], transform=transform, set="certain")
-        test_loader = DataLoader(data, batch_size=len(data))
-        test_data = data
-    else:
-        print("Test data for uncertainty quantification misspecified")
     indices = np.arange(0, len(test_data), 1)
     logit = True
     num_batches_test = 1
@@ -500,68 +448,7 @@ def get_logits_mlp(model, test_data_uncert, device, path):
 
    
 def get_logits_ensembles(model, test_data_uncert, device, path, n_ensembles, path_out):
-
-    # test_data = test_data_uncert    
-    if(test_data_uncert == 'MBFRConfident'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRConfident(path, train=False,
-                            transform=transform, target_transform=None,
-                            download=False)
-    elif(test_data_uncert == 'MBFRUncertain'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRUncertain(path, train=False,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'MBHybrid'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBHybrid(path, train=True,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'Galaxy_MNIST'):
-        transform = torchvision.transforms.Compose([ torchvision.transforms.ToTensor(),
-        torchvision.transforms.Resize((150,150), antialias = True), 
-        torchvision.transforms.Grayscale(),
-        ])
-        train_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=True,  # by default, or set False for test set
-            transform = transform
-        )
-        test_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=False,  # by default, or set False for test set
-            transform = transform
-        )
-        gal_mnist_test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=104, shuffle = False)
-
-        for i, (x_test_galmnist, y_test_galmnist) in enumerate(gal_mnist_test_loader):
-            x_test_galmnist, y_test_galmnist = x_test_galmnist.to(device), y_test_galmnist.to(device)
-            y_test_galmnist = torch.zeros(104).to(device)
-            if(i==0):
-                break
-        test_data = x_test_galmnist
-
-    elif(test_data_uncert == 'mightee'):
-        transform = torchvision.transforms.Compose(
-        [
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Resize(150),  # Rescale to adjust for resolution difference between MIGHTEE & RGZ - was 70
-            torchvision.transforms.Normalize((1.59965605788234e-05,), (0.0038063037602458706,)),
-        ]
-        )
-        paths = Path_Handler()._dict()
-        set = 'certain'
-
-        data = MighteeZoo(path=paths["mightee"], transform=transform, set="certain")
-        test_loader = DataLoader(data, batch_size=len(data))
-        test_data = data
-
-    else:
-        print("Test data for uncertainty quantification misspecified")
-
-
+    test_data = get_test_data(test_data_uncert, path, device)
     indices = np.arange(0, len(test_data), 1)
     logit = True
   
@@ -604,72 +491,10 @@ def get_logits_ensembles(model, test_data_uncert, device, path, n_ensembles, pat
 
                 output_[j][index] = outputs
 
-    # print(output_)
     return output_
 
 def get_logits_la(la, test_data_uncert, device, path):
-
-    # test_data = test_data_uncert
-    if(test_data_uncert == 'MBFRConfident'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRConfident(path, train=False,
-                            transform=transform, target_transform=None,
-                            download=False)
-    elif(test_data_uncert == 'MBFRUncertain'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBFRUncertain(path, train=False,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'MBHybrid'):
-        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-        test_data = mirabest.MBHybrid(path, train=True,
-                         transform=transform, target_transform=None,
-                         download=False)
-    elif(test_data_uncert == 'Galaxy_MNIST'):
-        transform = torchvision.transforms.Compose([ torchvision.transforms.ToTensor(),
-        torchvision.transforms.Resize((150,150), antialias = True), 
-        torchvision.transforms.Grayscale(),
-        ])
-        train_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=True,  # by default, or set False for test set
-            transform = transform
-        )
-        test_dataset = GalaxyMNISTHighrez(
-            root='/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/data/dataGalaxyMNISTHighres',
-            download=True,
-            train=False,  # by default, or set False for test set
-            transform = transform
-        )
-        gal_mnist_test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=104, shuffle = False)
-
-        for i, (x_test_galmnist, y_test_galmnist) in enumerate(gal_mnist_test_loader):
-            x_test_galmnist, y_test_galmnist = x_test_galmnist.to(device), y_test_galmnist.to(device)
-            y_test_galmnist = torch.zeros(104).to(device)
-            if(i==0):
-                break
-        test_data = x_test_galmnist
-
-    elif(test_data_uncert == 'mightee'):
-        transform = torchvision.transforms.Compose(
-        [
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Resize(150),  # Rescale to adjust for resolution difference between MIGHTEE & RGZ - was 70
-            torchvision.transforms.Normalize((1.59965605788234e-05,), (0.0038063037602458706,)),
-        ]
-        )
-        paths = Path_Handler()._dict()
-        set = 'certain'
-
-        data = MighteeZoo(path=paths["mightee"], transform=transform, set="certain")
-        test_loader = DataLoader(data, batch_size=len(data))       
-        test_data = data
-
-    else:
-        print("Test data for uncertainty quantification misspecified")
-
-
+    test_data = get_test_data(test_data_uncert, path, device)
     indices = np.arange(0, len(test_data), 1)
     logit = True
   
