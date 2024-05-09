@@ -4,22 +4,22 @@ import os
 from torch.utils.data import DataLoader, Dataset
 from copy import deepcopy
 import numpy as np
-import corner 
 from matplotlib import pyplot as plt
-from statsmodels.graphics.tsaplots import plot_acf
+from radiogalaxies_bnns.inference.utils import Path_Handler
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-path = './results/leapfrog/' #intis/'#/thin #thin10000/'
-n_chains = 2 #2 - intis #10 #10
-num_samples = 3000 #200000
+paths = Path_Handler()._dict()
+path = paths['project'] / 'results' / 'inits/'  #'./results/leapfrog/' #intis/'#/thin #thin10000/'
+n_chains = 5 #2 - intis #10 #10
+num_samples = 200000
 checkpt = 1000
-thin1 = 0 #1000 
-thin2 = 0 #1000
-n_files = 3 #190 #200 #int(num_samples/checkpt)
+thin1 = 1000 # thin every 1000 samples
+thin2 = 500
+n_files = 200 #190 #200 #int(num_samples/checkpt)
 
 #generate folder list
-folder_list = [f"{path}mb_out_{i}" for i in [1, 4]]  #range(1, n_chains+1)]
+folder_list = [f"{path}mb_out_{i}" for i in range(1, 6)]  #range(1, n_chains+1)]
 print(folder_list)
 
 #generate file list for each folder
@@ -48,20 +48,20 @@ for j in range(n_chains):
 
         locals()[var_name] = torch.load(file, map_location=torch.device(device))
 
-        locals()[var_name1] = locals()[var_name]#[0:1000:thin1]
-        locals()[var_name2] = locals()[var_name]#[0:1000:thin2]
+        locals()[var_name1] = locals()[var_name][0:1000:thin1]
+        # locals()[var_name2] = locals()[var_name][0:1000:thin2]
 
         if(i==0):
             params_hmc_thin1 = locals()[var_name1]
-            params_hmc_thin2 = locals()[var_name2]
+            # params_hmc_thin2 = locals()[var_name2]
         else:
             params_hmc_thin1+= locals()[var_name1] 
-            params_hmc_thin2+= locals()[var_name2]
+            # params_hmc_thin2+= locals()[var_name2]
         print(i)
 
         del locals()[var_name]
         del locals()[var_name1]
-        del locals()[var_name2]
+        # del locals()[var_name2]
         i+=1
 
 

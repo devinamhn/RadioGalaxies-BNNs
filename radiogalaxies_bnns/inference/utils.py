@@ -70,7 +70,10 @@ class Path_Handler:
             "project", Path(__file__).resolve().parent.parent
         )  # i.e. this repo
 
-        path_dict["data"] = kwargs.get("data", path_dict["root"] / "radiogalaxies_bnns" / "data")
+        # path_dict["data"] = kwargs.get("data", path_dict["root"] / "radiogalaxies_bnns" / "data")
+        path_dict["data"] = kwargs.get("data", path_dict["project"] / "data")
+        path_dict["inference"] = kwargs.get("inference", path_dict["project"] / "inference")
+        path_dict["eval"] = kwargs.get("eval", path_dict["project"] / "eval")
 
         for key, path_str in path_dict.copy().items():
             path_dict[key] = Path(path_str)

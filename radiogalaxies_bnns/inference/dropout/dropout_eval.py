@@ -39,9 +39,9 @@ def credible_interval(samples, credibility):
 
     return sorted_samples, index_lower, index_upper, mean_samples
 
-
+paths = utils.Path_Handler()._dict()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/dropout/config_mb_dropout.txt')
+config_dict, config = utils.parse_config(paths['inference']/ 'dropout' / 'config_mb_dropout.txt')
 seed = 122 #config['training']['seed']
 torch.manual_seed(seed)
 path_out = config_dict['output']['path_out']

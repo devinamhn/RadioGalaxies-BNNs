@@ -18,9 +18,10 @@ def enable_dropout(m):
       each_module.train()
 
 jobid = int(sys.argv[1])
+paths = utils.Path_Handler()._dict()
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/dropout/config_mb_dropout.txt')
+config_dict, config = utils.parse_config(paths['inference']/ 'dropout' / 'config_mb_dropout.txt')
 seed = config_dict['training']['seed'] + jobid #config['training']['seed']
 seed_dataset = config_dict['training']['seed_dataset'] + jobid
 torch.manual_seed(seed + jobid)
