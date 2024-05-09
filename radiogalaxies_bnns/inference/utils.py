@@ -303,19 +303,19 @@ def calibration_test(path_out, model, test_data_uncert, device, path, test):
 
 def get_logits(model, test_data_uncert, device, path):
 
-    test_data = test_data_uncert
-    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-
+    # test_data = test_data_uncert
     if(test_data_uncert == 'MBFRConfident'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRConfident(path, train=False,
                             transform=transform, target_transform=None,
                             download=False)
     elif(test_data_uncert == 'MBFRUncertain'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRUncertain(path, train=False,
                          transform=transform, target_transform=None,
                          download=False)
     elif(test_data_uncert == 'MBHybrid'):
-        #hybrid
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBHybrid(path, train=True,
                          transform=transform, target_transform=None,
                          download=False)
@@ -404,18 +404,19 @@ def get_logits(model, test_data_uncert, device, path):
 
 def get_logits_mlp(model, test_data_uncert, device, path):
 
-    test_data = test_data_uncert
-    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-    
+    # test_data = test_data_uncert
     if(test_data_uncert == 'MBFRConfident'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRConfident(path, train=False,
                             transform=transform, target_transform=None,
                             download=False)
     elif(test_data_uncert == 'MBFRUncertain'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRUncertain(path, train=False,
                          transform=transform, target_transform=None,
                          download=False)
     elif(test_data_uncert == 'MBHybrid'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBHybrid(path, train=True,
                          transform=transform, target_transform=None,
                          download=False)
@@ -500,18 +501,19 @@ def get_logits_mlp(model, test_data_uncert, device, path):
    
 def get_logits_ensembles(model, test_data_uncert, device, path, n_ensembles, path_out):
 
-    test_data = test_data_uncert
-    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])    
+    # test_data = test_data_uncert    
     if(test_data_uncert == 'MBFRConfident'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRConfident(path, train=False,
                             transform=transform, target_transform=None,
                             download=False)
     elif(test_data_uncert == 'MBFRUncertain'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRUncertain(path, train=False,
                          transform=transform, target_transform=None,
                          download=False)
     elif(test_data_uncert == 'MBHybrid'):
-        #hybrid
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBHybrid(path, train=True,
                          transform=transform, target_transform=None,
                          download=False)
@@ -607,19 +609,19 @@ def get_logits_ensembles(model, test_data_uncert, device, path, n_ensembles, pat
 
 def get_logits_la(la, test_data_uncert, device, path):
 
-    test_data = test_data_uncert
-    transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
-    
+    # test_data = test_data_uncert
     if(test_data_uncert == 'MBFRConfident'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRConfident(path, train=False,
                             transform=transform, target_transform=None,
                             download=False)
     elif(test_data_uncert == 'MBFRUncertain'):
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBFRUncertain(path, train=False,
                          transform=transform, target_transform=None,
                          download=False)
     elif(test_data_uncert == 'MBHybrid'):
-        #hybrid
+        transform = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.0031 ,), (0.0350,))])
         test_data = mirabest.MBHybrid(path, train=True,
                          transform=transform, target_transform=None,
                          download=False)
