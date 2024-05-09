@@ -318,181 +318,64 @@ def get_test_data(test_data_uncert, path, device):
 
 def get_logits(model, test_data_uncert, device, path):
     test_data = get_test_data(test_data_uncert, path, device)
-
     indices = np.arange(0, len(test_data), 1)
-    logit = True
-  
-    num_batches_test = 1
-    
-    
-    fr1 = 0
-    fr2 = 0
     samples_iter = 200
-
     output_ = torch.zeros(samples_iter, len(test_data), 2)
-    
-    logits_all= []
     for index in indices:
-        
         x = torch.unsqueeze(test_data[index][0].clone().detach(), 0) #torch.unsqueeze(torch.tensor(test_data[index][0]),0)
-        if(test_data_uncert == 'Galaxy_MNIST'):
-            y = torch.tensor(0)#test_data[index][1]),0)
-        else:
-            y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-        target = y.detach().numpy().flatten()[0]
-        logits_=[]
         #for a single datapoint
         with torch.no_grad():
-     
             model.train(False)
             enable_dropout(model)
-
             for j in range(samples_iter):
-                x_test, y_test = x.to(device), y.to(device)
-
+                x_test = x.to(device)
                 outputs = model(x_test)
-                softmax = F.softmax(outputs, dim = -1)
-                pred = softmax.argmax(dim=-1)
-
                 output_[j][index] = outputs
-
-    # print(output_)
     return output_
 
 
 def get_logits_mlp(model, test_data_uncert, device, path):
     test_data = get_test_data(test_data_uncert, path, device)
-
     indices = np.arange(0, len(test_data), 1)
-    logit = True
-    num_batches_test = 1
-    
-    fr1 = 0
-    fr2 = 0
     output_ = torch.zeros(len(test_data), 2)
-    
-    # print(indices)
-    logits_all= []
     for index in indices:
-        
-        x = torch.unsqueeze(test_data[index][0].clone().detach(), 0) #torch.unsqueeze(torch.tensor(test_data[index][0]),0)
-        if(test_data_uncert == 'Galaxy_MNIST'):
-            y = torch.tensor(0)#test_data[index][1]),0)
-        else:
-            y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-        target = y.detach().numpy().flatten()[0]
-        logits_=[]
+        x = torch.unsqueeze(test_data[index][0].clone().detach(), 0)
         #for a single datapoint
         with torch.no_grad():
-     
             model.train(False)
-            # enable_dropout(model)
-
-            # for j in range(samples_iter):
-            x_test, y_test = x.to(device), y.to(device)
-
+            x_test = x.to(device)
             outputs = model(x_test)
-            # softmax = F.softmax(outputs, dim = -1)
-            # pred = softmax.argmax(dim=-1)
-
             output_[index] = outputs
-
-    # print(output_.shape)
     return output_
 
    
 def get_logits_ensembles(model, test_data_uncert, device, path, n_ensembles, path_out):
     test_data = get_test_data(test_data_uncert, path, device)
     indices = np.arange(0, len(test_data), 1)
-    logit = True
-  
-    num_batches_test = 1
-    
-    
-    fr1 = 0
-    fr2 = 0
-    # samples_iter = 200
     samples_iter = n_ensembles
     output_ = torch.zeros(samples_iter, len(test_data), 2)
-    
-    # print(indices)
-    logits_all= []
     for index in indices:
-        
-        x = torch.unsqueeze(test_data[index][0].clone().detach(), 0) #torch.unsqueeze(torch.tensor(test_data[index][0]),0)
-        if(test_data_uncert == 'Galaxy_MNIST'):
-            y = torch.tensor(0)#test_data[index][1]),0)
-        else:
-            y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-        target = y.detach().numpy().flatten()[0]
-        logits_=[]
+        x = torch.unsqueeze(test_data[index][0].clone().detach(), 0)
         #for a single datapoint
         with torch.no_grad():
-     
             model.train(False)
-            # enable_dropout(model)
-
             for j in range(samples_iter):
-
                 model_path = path_out+ str(j+1) +'/model'
                 model.load_state_dict(torch.load(model_path))
-
-                x_test, y_test = x.to(device), y.to(device)
-
+                x_test = x.to(device)
                 outputs = model(x_test)
-                softmax = F.softmax(outputs, dim = -1)
-                pred = softmax.argmax(dim=-1)
-
                 output_[j][index] = outputs
-
     return output_
 
 def get_logits_la(la, test_data_uncert, device, path):
     test_data = get_test_data(test_data_uncert, path, device)
     indices = np.arange(0, len(test_data), 1)
-    logit = True
-  
-    num_batches_test = 1
-        
-    fr1 = 0
-    fr2 = 0
     samples_iter = 200
-
     output_ = torch.zeros(samples_iter, len(test_data), 2)
-    
-    # print(indices)
-    logits_all= []
     for index in indices:
-        
         x = torch.unsqueeze(test_data[index][0].clone().detach(), 0) #torch.unsqueeze(torch.tensor(test_data[index][0]),0)
-        if(test_data_uncert == 'Galaxy_MNIST'):
-            y = torch.tensor(0)#test_data[index][1]),0)
-        else:
-            y = torch.unsqueeze(torch.tensor(test_data[index][1]),0)
-        target = y.detach().numpy().flatten()[0]
-        logits_=[]
-        #for a single datapoint
-        # with torch.no_grad():
-            # model.train(False)
-            # enable_dropout(model)
-     
-        # for i, (x_test, y_test) in enumerate(test_loader):
-        #     x_test, y_test = x_test.to(device), y_test.to(device)
-        #     print(x_test.shape)
-        # print(x.shape)
         outputs = la.predictive_samples(x.cuda(), pred_type = 'nn', n_samples = 200, return_logits = True )
-        # print(outputs.shape)
         output_[:, index :, ] = outputs
-            # for j in range(samples_iter):
-            #     x_test, y_test = x.to(device), y.to(device)
-
-            #     outputs = model(x_test)
-            #     softmax = F.softmax(outputs, dim = -1)
-            #     pred = softmax.argmax(dim=-1)
-
-            #     output_[j][index] = outputs
-
-    # print(output_)
     return output_
 
 def rgz_cut(rgz_dset, threshold, mb_cut: bool = True, remove_duplicates=False):
