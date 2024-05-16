@@ -43,9 +43,7 @@ class MLP(nn.Module):
         out = self(input)
         return out
 
-class LeNet(nn.Module):
-    
-    # def __init__(self, in_channels, output_size, jobid):
+class LeNet(nn.Module):    
     def __init__(self, in_channels, output_size):
         super().__init__()
 
@@ -63,26 +61,8 @@ class LeNet(nn.Module):
         # following: https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                # if(jobid==1):
                 nn.init.normal_(m.weight, 0, 0.01)
                 nn.init.constant_(m.bias, 0)
-            #     elif(jobid==2):
-            #         nn.init.normal_(m.weight, 0, 0.1)
-            #         nn.init.constant_(m.bias, 0)
-            #     elif(jobid==3):
-            #         nn.init.normal_(m.weight, 0, 1)
-            #         nn.init.constant_(m.bias, 0)
-                    
-            # elif isinstance(m, nn.Conv2d):
-            #     if(jobid==1):
-            #         nn.init.normal_(m.weight, 0, 0.01)
-            #         nn.init.constant_(m.bias, 0)
-            #     elif(jobid==2):
-            #         nn.init.normal_(m.weight, 0, 0.1)
-            #         nn.init.constant_(m.bias, 0)
-            #     elif(jobid==3):
-            #         nn.init.normal_(m.weight, 0, 1)
-            #         nn.init.constant_(m.bias, 0)
 
     def forward (self, x):
 
@@ -96,9 +76,7 @@ class LeNet(nn.Module):
         
         x = torch.relu(self.conv4(x))
         x = torch.max_pool2d(x, 2)
-        
-        #print(x.shape)
-        
+                
         x = x.view(-1, 7*7*32)
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
@@ -149,9 +127,7 @@ class LeNetDrop(nn.Module):
         
         x = torch.relu(self.conv4(x))
         x = torch.max_pool2d(x, 2)
-        
-        #print(x.shape)
-        
+                
         x = x.view(-1, 7*7*32)
         x = torch.relu(self.fc1(x))
         x = self.dropout2(x)
