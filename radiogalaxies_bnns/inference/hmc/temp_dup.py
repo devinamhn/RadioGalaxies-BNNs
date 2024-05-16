@@ -6,7 +6,7 @@ from radiogalaxies_bnns.inference.models import LeNet
 import sys
 
 paths = utils.Path_Handler()._dict()
-config_dict, config = utils.parse_config(paths['inference']/ 'hmc'/ 'config_mb.txt') #('config_mb.txt')
+config_dict, config = utils.parse_config(paths['inference']/ 'hmc'/ 'config_mb.txt')
 jobid = int(sys.argv[1])
 print(jobid)
 
