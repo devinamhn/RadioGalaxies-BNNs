@@ -1,10 +1,14 @@
+""" Calculate last layer Laplace approximation for 10 experimental runs 
+of non-Bayesian CNN
+"""
+
 import numpy as np
 import torch
 import torch.distributions as dists
 from radiogalaxies_bnns.inference.models import LeNet
 import radiogalaxies_bnns.inference.utils as utils
-from radiogalaxies_bnns.inference.datamodules import MNISTDataModule, MiraBestDataModule, testloader_mb_uncert
-from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, overlapping, GMM_logits, calibration
+from radiogalaxies_bnns.inference.datamodules import MiraBestDataModule, testloader_mb_uncert
+from radiogalaxies_bnns.eval.uncertainty.uncertainty import entropy_MI, calibration
 
 from laplace import Laplace
 from netcal.metrics import ECE
@@ -25,8 +29,9 @@ def credible_interval(samples, credibility):
 
     return sorted_samples, index_lower, index_upper, mean_samples
 
+paths = utils.Path_Handler()._dict()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-config_dict, config = utils.parse_config('/share/nas2/dmohan/RadioGalaxies-BNNs/radiogalaxies_bnns/inference/nonBayesianCNN/config_cnn.txt')
+config_dict, config = utils.parse_config(paths['inference'] /'nonBayesianCNN'/'config_cnn.txt')
 seed = 122 #config['training']['seed']
 torch.manual_seed(seed)
 
@@ -42,12 +47,6 @@ print(config_dict['output']['test_data'])
 targets = torch.cat([y for x, y in test_loader], dim=0).to(device)#.numpy()
 
 
-# #Non-Bayesian CNN if dropout_rate = 0
-# model = LeNet(in_channels = 1, output_size =  2).to(device)
-
-# model_path = path_out+ str(8) +'/model'
-# model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu') ))
-
 @torch.no_grad()
 def predict(dataloader, model, laplace=False):
     py = []
@@ -60,22 +59,6 @@ def predict(dataloader, model, laplace=False):
 
     return torch.cat(py)#.cpu().numpy()
 
-# probs_map = predict(test_loader, model, laplace=False)
-# print((probs_map.argmax(-1) == targets)*1)
-# acc_map = ((probs_map.argmax(-1) == targets)*1).float().mean()
-# ece_map = ECE(bins=8).measure(probs_map.cpu().numpy(), targets.cpu().numpy())
-# nll_map = -dists.Categorical(probs_map).log_prob(targets).mean()
-# print(f'[MAP] Acc.: {acc_map:.1%}; ECE: {ece_map:.1%}; NLL: {nll_map:.3}')
-
-
-# Laplace
-# la = Laplace(model, 'classification',
-#              subset_of_weights= 'last_layer',
-#              hessian_structure='diag') # {diag, kron, full}
-# la.fit(train_loader)
-# la.optimize_prior_precision(pred_type = 'nn', method='marglik', verbose = True)
-
-
 # posterior_precision = la.posterior_precision
 # posterior_std = torch.sqrt(1/posterior_precision)
 # print(la.sample(200)[:, 0:168].shape)
@@ -83,39 +66,12 @@ def predict(dataloader, model, laplace=False):
 # samples  = la.sample(200)[:, 0:168]
 # torch.save(samples, './results/laplace/lla_samples.pt')
 
-# torch.save(la.sample)
-# print(posterior_std)
-# print(model.out.weight.detach().numpy())
-# torch.distributions.Normal(
-
-
-
-# probs_laplace = predict(test_loader, la, laplace=True)
-# acc_laplace = ((probs_laplace.argmax(-1) == targets)*1).float().mean()
-# ece_laplace = ECE(bins=8).measure(probs_laplace.cpu().numpy(), targets.cpu().numpy())
-# nll_laplace = -dists.Categorical(probs_laplace).log_prob(targets).mean()
-
-# print(f'[Diag Laplace] Acc.: {acc_laplace:.1%}; ECE: {ece_laplace:.1%}; NLL: {nll_laplace:.3}')
-# print(f'[Kron] Acc.: {acc_laplace:.1%}; ECE: {ece_laplace:.1%}; NLL: {nll_laplace:.3}')
-
-
-# x_data, y_data = data
-
-
 test_loader, test_data1, data_type, test_data = testloader_mb_uncert(config_dict['output']['test_data'], config_dict['data']['datadir'])
 mean_expected_error_arr, std_expected_error_arr, uce_pe_arr, uce_mi_arr, uce_ae_arr = np.zeros(10), np.zeros(10), np.zeros(10), np.zeros(10), np.zeros(10)
 
 
-
-############################
-# UCE Calculation
-############################
 for n_ensemble in np.arange(0, 10, 1):
-    print('Ensemble', n_ensemble)
-
-    #Non-Bayesian CNN if dropout_rate = 0
     model = LeNet(in_channels = 1, output_size =  2).to(device)
-
     model_path = path_out+ str(n_ensemble+1) +'/model'
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu') ))
 
@@ -145,7 +101,6 @@ for n_ensemble in np.arange(0, 10, 1):
     fr2 = 0
 
     indices = np.arange(0, len(test_data), 1)
-    # print(indices)
 
     #for each sample in the test set:
     for index in indices:
@@ -224,24 +179,10 @@ for n_ensemble in np.arange(0, 10, 1):
                         np.array(mi_all), n_bins, x_label = 'mutual information')
     uce_ae  = calibration(path, np.array(error_all), 
                         np.array(aleat_all), n_bins, x_label = 'average entropy')
-
-
-
-    # print("mean and std of error")
-    # print(error_all)
-    # print(np.mean(error_all)*100)
-    # print(np.std(error_all))
-
-    # print("Average of expected error")
-    # print((np.array(avg_error_mean)).mean()*100)
-    # print((np.array(avg_error_mean)).std())
         
     mean_expected_error = np.array(avg_error_mean).mean()*100 
     std_expected_error = np.array(avg_error_mean).std()
 
-    # print('Predictive entropy', uce_pe)
-    # print('Mututal info', uce_mi)
-    # print('Aleatoric uncertainty', uce_ae)
     mean_expected_error_arr[n_ensemble], std_expected_error_arr[n_ensemble], uce_pe_arr[n_ensemble], uce_mi_arr[n_ensemble], uce_ae_arr[n_ensemble] = mean_expected_error, std_expected_error, uce_pe, uce_mi, uce_ae
 
 print("Mean of error over seeds", mean_expected_error_arr.mean())
