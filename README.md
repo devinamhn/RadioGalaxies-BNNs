@@ -20,4 +20,4 @@ Download image and source catalogue fits for the COSMOS and XMMLSS fields from t
 
 Expert classifications for 117 objects are available at [MIGHTEE FR Dataset](https://zenodo.org/records/8188867) <sup> citation </sup>
 
-![Galaxy Images](/radiogalaxies_bnns/postage/galaxy_image.png)
+<!-- ![Galaxy Images](/radiogalaxies_bnns/postage/galaxy_image.png) -->
