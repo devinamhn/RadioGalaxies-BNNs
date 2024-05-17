@@ -1,9 +1,9 @@
 import torch
 # import numpyro
 from matplotlib import pyplot as plt
-import corner
+# import corner
 import numpy as np
-from statsmodels.graphics.tsaplots import plot_acf
+# from statsmodels.graphics.tsaplots import plot_acf
 import seaborn as sns
 import pandas as pd
 
