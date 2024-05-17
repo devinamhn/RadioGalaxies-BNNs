@@ -1,14 +1,14 @@
-import torch
-# import numpyro
-from matplotlib import pyplot as plt
-import corner
-import numpy as np
-from statsmodels.graphics.tsaplots import plot_acf
-import seaborn as sns
-import pandas as pd
-from tabulate import tabulate
+""" Functions for checking convergence of HMC chains using 
+    Gelman Rubin diagnostic and calculating the intergrated 
+    autocorrelation time.
+"""
 
-#Gelman-Rubin diagnostics
+import torch
+from matplotlib import pyplot as plt
+import numpy as np
+import radiogalaxies_bnns.inference.utils as utils
+
+#Gelman-Rubin diagnostic
 def gelman_rubin(samples1, samples2, N_chains):
     halfway_point = int(len(samples1)/2)
     #remove the first part of each chain
@@ -23,23 +23,18 @@ def gelman_rubin(samples1, samples2, N_chains):
     mean_c2 = np.mean(samples2, axis = 0)
     var_c2= np.var(samples2, axis = 0) * (1/(num_samples-1)) #(num_samples/(num_samples-1)) 
 
-    # print("variance of chains")
-    # print(var_c1, var_c2)
     #calculate the mean of each param from multiple chains
     mean_of_means = np.mean([mean_c1, mean_c2], axis = 0)
-    mean_of_var =  np.mean([var_c1, var_c2], axis = 0) #W
-    # print("mean of var", mean_of_var)
-
+    mean_of_var =  np.mean([var_c1, var_c2], axis = 0)
 
     #between chain variance - variance of mean values from different chains
     #should converge to 0 as N -> inf
-    variance_of_means = ((mean_c1 - mean_of_means)**2 + (mean_c2 - mean_of_means)**2 ) * (num_samples) / (N_chains -1) #B
-    # print('between chain variance', variance_of_means)
+    variance_of_means = ((mean_c1 - mean_of_means)**2 + 
+                         (mean_c2 - mean_of_means)**2 ) * (num_samples) / (N_chains -1) #B
 
     #compare between chain variance to within chain variance 
     # B_j = variance_of_means - mean_of_var/num_samples
     # R_hat = np.sqrt(1+ B_j/abs(variance_of_means))
-
 
     R_hat = ( ((num_samples-1)/num_samples) * mean_of_var + (1/num_samples)* variance_of_means) / mean_of_var
     return R_hat
@@ -153,50 +148,52 @@ def integrated_time(x, c=5, tol=50, quiet=False):
 def ess(num_samples, tau):
     return num_samples/tau
 
-path = './results/leapfrog/'#'./results/inits/thin1000/' #temp/thin1000/' # './results/mnist/mnist_mlp_no_mass_9000samples/'
+paths = utils.Path_Handler()._dict()
+
+path = paths['project']/ 'results'/ 'inits'
+path_chains = '/share/nas2/dmohan/mcmc/hamilt/results/inits/thin1000' #final chains loc
+
 device = 'cpu' #torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-params_hmc_c1 = torch.load(path+'/thin_chain'+str(0), map_location=torch.device(device))   #torch.load(path + 'params_hmc.pt',map_location=device)
-params_hmc_c2 = torch.load(path+'/thin_chain'+str(1), map_location=torch.device(device)) #torch.load(path+ '/initstd1/' + 'params_hmc.pt',map_location=device)
-
+params_hmc_c1 = torch.load(path_chains + '/thin_chain0', map_location=torch.device(device))
+params_hmc_c2 = torch.load(path_chains + '/thin_chain1', map_location=torch.device(device))
 num_samples = len(params_hmc_c1)
 
-num_params = 5
+#check convergence for last layer
+num_params = 168 
 samples1 =np.zeros((num_samples, num_params))
 samples2 = np.zeros((num_samples, num_params))
 i = 0
 
-#for j in np.arange(232358,232442): 232435, 232444
-# for j in range(232435, 232444): 
-for j in range(232435, 232440): #one weight only
+for j in range(232274, 232442): #(0, 232444)
     for k in range(num_samples):
         samples1[k][i] = params_hmc_c1[k][j]
         samples2[k][i] = params_hmc_c2[k][j]
-    # print(j)
     i=i+1
 print(len(samples1))
 
 N_chains = 2
-burn_in = 50
+burn_in = 0
 R_hat = gelman_rubin(samples1[burn_in:], samples2[burn_in:], N_chains)
+print(np.where(R_hat<1.0))
 
-print(R_hat)
-rhat = []
-# for n in np.arange(0, 5000, 25):
-#     # print(n)
-#     R_hat = gelman_rubin(samples1[n:n+10], samples2[n:n+10], N_chains)
-#     # print(R_hat)
-#     rhat.append(R_hat)
 
-# plt.figure(dpi=200)
-# plt.plot(np.arange(0, 5000, 25), rhat)
-# plt.ylabel('R_hat')
-# plt.xlabel('step')
-# # plt.xticks(np.arange(0, 200, 40))
-# plt.legend()
-# plt.savefig('./results/leapfrog' +'rhat.png')
+plt.figure(dpi=200)
+plt.scatter(np.arange(0, 168, 1), R_hat, s =1)
+plt.ylabel('R_hat')
+plt.xlabel('step')
+plt.axhline(y=1, color='gray', linestyle='--')
+plt.legend()
+plt.savefig(path / 'convergence' / 'rhat.png')
 
+plt.figure(dpi=200)
+plt.hist(R_hat)
+plt.ylabel('Count')
+plt.xlabel('R\u0302')
+plt.savefig( path / 'convergence' / 'rhat_hist.png')
+
+exit()
 for j in range(5): #9
     print('param', j)
     for i in [0, 10, 20, 30, 50]:
