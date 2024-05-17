@@ -20,5 +20,5 @@ echo "Running on:"
 hostname
 source /share/nas2/dmohan/mcmc/hamilt/venv/bin/activate
 echo ">>>training"
-python /share/nas2/dmohan/mcmc/hamilt/temp_dup.py $SLURM_ARRAY_TASK_ID
+python /share/nas2/dmohan/mcmc/hamilt/run_hmc.py $SLURM_ARRAY_TASK_ID
 
