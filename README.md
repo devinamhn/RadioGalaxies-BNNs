@@ -2,11 +2,11 @@
 Approx Bayesian Inference for Radio Galaxy Classification
 
 ## Installation
-- git clone <repo>
-- cd <repo>
+- git clone this repo ```<repo>```
+- cd ```<repo>```
 - Create a python virtual environment 
 - Activate virtual env
-- Install packages using the requirements.txt file: ``` pip install -r requirements.txt `` 
+- Install packages using the requirements.txt file: ``` pip install -r requirements.txt ```
 
 ## Directory Structure
 
@@ -27,7 +27,7 @@ Approx Bayesian Inference for Radio Galaxy Classification
 4. MC Dropout
     - Train 10 dropout models by running dropout_train.py
 ## Evaluation protocols
-1   
+
 
 ## Results 
 
