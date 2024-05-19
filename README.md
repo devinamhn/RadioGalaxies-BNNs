@@ -2,6 +2,11 @@
 Approx Bayesian Inference for Radio Galaxy Classification
 
 ## Installation
+- git clone <repo>
+- cd <repo>
+- Create a python virtual environment 
+- Activate virtual env
+- Install packages using the requirements.txt file: ``` pip install -r requirements.txt `` 
 
 ## Directory Structure
 
@@ -11,9 +16,9 @@ Approx Bayesian Inference for Radio Galaxy Classification
     - To run HMC chains run_hmc.py. This will save HMC chains for every checkpoint (every 1000 steps by default)
     - Run combine.py to thin the HMC chains for a specified thinning factor (default thinning factor = 1000)
     - Calculate the Gelman-Rubin diagnostic to examine the convergence of specific parameters by running convergence.py (calculated for last layer weights by default)
-    - Each HMC chain was run on an A100 GPUs for 170 hrs. Thinned chains for the model are available at <insert link>
+    - Each HMC chain was run on an A100 GPU for 170 hrs. Thinned chains for the model are available at <insert link>
     
-2. (nonBayesian) CNN
+2. (nonBayesian) CNN / Deep Ensembles
     - Train 10 nonBayesian CNN models for different random seeds and random shuffling between training and validation datasets by running cnn_train.py
 
 3. Last-Layer Laplace Approximation (LLA)
@@ -22,11 +27,12 @@ Approx Bayesian Inference for Radio Galaxy Classification
 4. MC Dropout
     - Train 10 dropout models by running dropout_train.py
 ## Evaluation protocols
+1   
 
 ## Results 
 
 ## Data 
-Our BNNs are trained on the MiraBest dataset. To examine the sensitivity of our BNNs to different types of distribution shifts we use radio galaxies from the MIGHTEE and GalaxyMNIST datasets.
+Our BNNs are trained on the MiraBest dataset. To examine the sensitivity of our BNNs to different types of distribution shifts we use radio galaxies from MIGHTEE and optical galaxies from GalaxyMNIST.
 
 ### MiraBest
 ### MIGHTEE
