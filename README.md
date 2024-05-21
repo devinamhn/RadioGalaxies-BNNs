@@ -17,15 +17,19 @@ Approx Bayesian Inference for Radio Galaxy Classification
     - Run combine.py to thin the HMC chains for a specified thinning factor (default thinning factor = 1000)
     - Calculate the Gelman-Rubin diagnostic to examine the convergence of specific parameters by running convergence.py (calculated for last layer weights by default)
     - Each HMC chain was run on an A100 GPU for 170 hrs. Thinned chains for the model are available at <insert link>
-    
-2. (nonBayesian) CNN / Deep Ensembles
+
+2. Variational Inference
+    - See <https://github.com/devinamhn/RadioGalaxies-BBB> 
+
+3. (nonBayesian) CNN / Deep Ensembles
     - Train 10 nonBayesian CNN models for different random seeds and random shuffling between training and validation datasets by running cnn_train.py
 
-3. Last-Layer Laplace Approximation (LLA)
+4. Last-Layer Laplace Approximation (LLA)
     - Using the MAP values learned by the (non-Bayesian CNNs), fit Laplace approximations for last layer weights of the model by running laplace_approx.py
 
-4. MC Dropout
+5. MC Dropout
     - Train 10 dropout models by running dropout_train.py
+    
 ## Evaluation protocols
 
 
