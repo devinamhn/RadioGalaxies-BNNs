@@ -83,7 +83,7 @@ class Path_Handler:
     def fill_dict(self):
         """Create dictionary of required paths"""
 
-        self.path_dict["rgz"] = self.path_dict["data"] / "rgz"
+        self.path_dict["rgz"] = self.path_dict["data"] #/ "rgz108k-batches-py" #rgz
         self.path_dict["mb"] = self.path_dict["data"] / "mb"
         self.path_dict["mightee"] = self.path_dict["data"] / "MIGHTEE"
 
