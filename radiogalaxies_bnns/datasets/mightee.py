@@ -66,7 +66,7 @@ class catalogue_preprocessing:
         # Filter down to sources with predictions, cuts on other things have been made already for
         # the zooniverse data set.
         # self.df_zoo = pd.read_parquet("zooniverse_mightee_classifications.parquet")
-        self.df_zoo = pd.read_parquet("/share/nas2/dmohan/mightee/_data/MIGHTEE/zooniverse_mightee_classifications.parquet")
+        self.df_zoo = pd.read_parquet("radiogalaxies_bnns/data/MIGHTEE/zooniverse_mightee_classifications.parquet")
         self.df_zoo = self.df_zoo[["filename", "majority_classification", "vote_fraction"]]
         self.df_zoo = self.df_zoo.rename({"filename": "NAME"}, axis="columns", errors="raise")
 
